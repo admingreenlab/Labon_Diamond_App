@@ -543,7 +543,6 @@ function Basket() {
 
 
     return (
-        <>
             <IonPage>
                 <Header />
                 <IonContent style={{ paddingBottom: '80x', marginBottom: '100px', marginTop: '10px' }}>
@@ -816,7 +815,6 @@ function Basket() {
                 </IonContent >
                 <Bottom />
             </IonPage>
-        </ >
     );
 }
 export default Basket; 

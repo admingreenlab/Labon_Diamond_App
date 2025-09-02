@@ -19,7 +19,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonApp
+  IonApp,
+  setupIonicReact
 } from '@ionic/react';
 import { IonMenuToggle } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -42,6 +43,8 @@ import { PolishProvider } from './context/PolishContext';
 import Polishtable from './pages/polishtable';
 import { App as CapacitorApp } from '@capacitor/app';
 // import Jewel from './pages/jewel';
+
+setupIonicReact({ mode: 'md' });
 
 function App() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -139,9 +142,8 @@ function App() {
 
       {!hideTabBarRoutes.includes(window.location.pathname) && (
 
-
-        <IonMenu contentId="main-content">
-          <IonHeader style={{ paddingTop: 'var(--ion-safe-area-top, 0)' }}>
+        <IonMenu class='main-menu-open' contentId="main-content">
+          <IonHeader>
             <IonToolbar color="#4c3226" style={{background:'#4c3226'}}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
@@ -153,7 +155,11 @@ function App() {
                 </div>
                 <div>
                   <IonMenuToggle>
-                    <IonButton fill='clear'><ion-icon name="close-outline" size='large' style={{ color: 'white' }}></ion-icon></IonButton>
+                    <IonButton fill='clear'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" viewBox="0 0 24 24">
+<path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
+</svg>
+                    </IonButton>
                   </IonMenuToggle>
                 </div>
               </div>

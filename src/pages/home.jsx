@@ -50,7 +50,6 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
 
-
   const categories = {
     Shape: [
       { name: "Round", shapeicon: "ico-shp icon-round-shape" },

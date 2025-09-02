@@ -98,12 +98,12 @@ ion-tab-button {
 }
 
 .carousel-control-next-icon {
-    background-image: url(../public/img/right.png) !important;
+    background-image: url(./public/img/right.png) !important;
     background-size: auto !important;
 }
 
 .carousel-control-prev-icon {
-    background-image: url(../public/img/left.png) !important;
+    background-image: url(./public/img/left.png) !important;
     background-size: auto !important;
 }
 

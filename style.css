@@ -23,6 +23,11 @@ ion-button {
     font-family: 'circular' !important;
 }
 
+.ion-sec{
+    --background: white !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
 .item-native {
     font-family: "Poppins", sans-serif !important;
 }
@@ -44,9 +49,6 @@ ion-button {
 
 .bottombtm-min {
   padding-bottom: var(--ion-safe-area-bottom, 0);
-}
-ion-header {
-  padding-top: var(--ion-safe-area-top, 0);
 }
 
 span.count-shop {
@@ -1027,8 +1029,8 @@ only screen and (min-width: 1280px) */
 
 @font-face {
     font-family: "diamond-shape";
-    src: url("../labondimoand/public/img/diamond-shape.woff");
-    src: url("../labondimoand/public/img/diamond-shape.woff") format("embedded-opentype"), url("../labondimoand/public/img/diamond-shape.woff") format("woff"), url("../labondimoand/public/img/diamond-shape.woff") format("truetype"), url("../labondimoand/public/img/diamond-shape.woff") format("svg");
+    src: url("./public/img/diamond-shape.woff");
+    src: url("./public/img/diamond-shape.woff") format("embedded-opentype"), url("./public/img/diamond-shape.woff") format("woff"), url("./public/img/diamond-shape.woff") format("truetype"), url("./public/img/diamond-shape.woff") format("svg");
     font-weight: normal;
     font-style: normal;
 }
@@ -1557,10 +1559,3 @@ span.checkbox-label img {
     margin: auto;
     margin-bottom: 11px;
 }
-
-/* span.checkbox-label img {
-    width: 46px;
-    height: 50px;
-    margin: auto;
-    margin-bottom: 11px;
-} */

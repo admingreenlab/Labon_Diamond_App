@@ -63,6 +63,16 @@ function apps() {
         setShowDropdown(!showDropdown);
     };
 
+    const toggleMenu = () => {
+        console.log('Menu toggle clicked');
+        // Get the menu element and toggle it
+        const menu = document.querySelector('.main-menu-open');
+        console.log('Menu element:', menu);
+        if (menu) {
+            menu.open() ? menu.close() : menu.open();
+        }
+    };
+
 
     // const handleclearstorage = () => {
     //     localStorage.clear();
@@ -110,21 +120,17 @@ function apps() {
         }
     }, [])
 
-
-
-
-
     return (
         <>
-            <IonHeader style={{ paddingTop: 'var(--ion-safe-area-top, 0)' }}>
-                <IonToolbar >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', marginTop: '10px' }}>
+            <IonHeader>
+                <IonToolbar className='ion-sec'>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <IonButtons slot="start">
-                                <IonMenuButton fill='clear' >
-                                    <Ion-Icon slot="start" src="img/align-left.svg" style={{ height: '100%', marginLeft: '10px', marginRight: '10px' }}></Ion-Icon>
-                                </IonMenuButton>
-                            </IonButtons>
+                            <button onClick={toggleMenu} style={{ background: 'none', border: 'none', cursor: 'pointer', marginRight: '10px', padding: '5px' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="black" className="bi bi-list" viewBox="0 0 16 16">
+                                    <path fillRule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                                </svg>
+                            </button>
                             <IonImg
                                 slot="start"
                                 src="img/logo.svg"
@@ -133,11 +139,9 @@ function apps() {
                         </div>
                         <div style={{ position: 'relative' }}>
                             <button onClick={toggleDropdown} style={{ background: 'none', border: 'none', cursor: 'pointer', marginRight: '10px' }}>
-                                <IonImg
-                                    slot="start"
-                                    src="img/user.png"
-                                    style={{ height: '30px', margin: '0' }}
-                                ></IonImg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="black" class="bi bi-person" viewBox="0 0 16 16">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                                </svg>
                             </button>
                         </div>
                     </div>
