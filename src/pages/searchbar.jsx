@@ -15,7 +15,7 @@ import {
 import Header from './head';
 import Bottom from './bottomtab';
 
-const LibraryPage = () => (
+const LibraryPage = ({isAuthenticated}) => (
   <>
     <Header />
     <IonContent>
@@ -34,7 +34,7 @@ const LibraryPage = () => (
         </IonCard>
       </div>
     </IonContent>
-    <Bottom />
+    <Bottom isAuthenticated={isAuthenticated}/>
   </>
 );
 

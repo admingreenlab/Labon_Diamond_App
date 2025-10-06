@@ -167,7 +167,7 @@ import Axios, { baseURL } from "../service/jwtAuth";
 import { useHistory } from "react-router-dom";
 import Bottom from './bottomtab';
 
-function Product() {
+function Product({isAuthenticated}) {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [formData, setFormData] = useState({
@@ -313,7 +313,7 @@ function Product() {
                         duration={2000}
                     />
       </IonContent >
-      <Bottom />
+      <Bottom isAuthenticated={isAuthenticated}/>
       </IonPage>
     </ >
   );

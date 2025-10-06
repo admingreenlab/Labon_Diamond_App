@@ -38,7 +38,7 @@ import { useHistory } from "react-router-dom";
 import Bottom from './bottomtab';
 
 
-function WebHistory() {
+function WebHistory({isAuthenticated}) {
     const history = useHistory();
     const isMountedRef = useRef(true);
     const [fromDate, setFromDate] = useState(moment().format("YYYY-MM-DD"));
@@ -220,7 +220,7 @@ function WebHistory() {
                     duration={2000}
                 />
             </IonContent >
-           <Bottom />
+           <Bottom isAuthenticated={isAuthenticated}/>
            </IonPage>
         </ >
     );

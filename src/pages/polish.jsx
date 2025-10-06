@@ -19,7 +19,7 @@ import { PolishContext } from "../context/PolishContext";
 import { useHistory, useLocation } from "react-router-dom";
 import Bottom from './bottomtab';
 
-const Polish = () => {
+const Polish = ({isAuthenticated}) => {
   const history = useHistory();
   const [showModal, setShowModal] = useState(false);
   const { setSearchpolish, searchpolish } = useContext(PolishContext);
@@ -879,7 +879,7 @@ const Polish = () => {
           </div>
         )}
       </IonContent>
-      <Bottom />
+      <Bottom isAuthenticated={isAuthenticated}/>
     </IonPage>
   );
 };

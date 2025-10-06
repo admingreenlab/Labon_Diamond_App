@@ -19,7 +19,7 @@ import { useLocation } from 'react-router-dom';
 import Bottom from './bottomtab';
 
 
-const WebHistorytable = () => {
+const WebHistorytable = ({isAuthenticated}) => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const [data, setData] = useState([]);
@@ -236,7 +236,7 @@ const WebHistorytable = () => {
                     </IonGrid>
 
                 </IonContent>
-                <Bottom />
+                <Bottom isAuthenticated={isAuthenticated}/>
             </IonPage>
         </>
     );

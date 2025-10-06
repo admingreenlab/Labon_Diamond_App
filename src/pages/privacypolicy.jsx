@@ -21,7 +21,7 @@ import Header from './head';
 import { IonModal } from '@ionic/react';
 import Bottom from './bottomtab';
 
-const RadioPage = () => {
+const RadioPage = ({isAuthenticated}) => {
     const [counter, setCounter] = useState(0);
 
     const incrementCounter = () => setCounter(counter + 1);
@@ -241,7 +241,7 @@ const RadioPage = () => {
                     </IonRow>
                 </IonGrid>
             </IonContent >
-                       <Bottom />
+                       <Bottom isAuthenticated={isAuthenticated}/>
         </>
     );
 };

@@ -51,7 +51,7 @@ import { Share } from '@capacitor/share';
 import { saveAs } from 'file-saver';
 import XLSX from "xlsx-js-style";
 
-function Basket() {
+function Basket({isAuthenticated}) {
     const [selectedRows, setSelectedRows] = useState([]);
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
@@ -343,7 +343,7 @@ function Basket() {
     
             alert(`File saved as: ${fileName}`);
     
-            if (Capacitor.getPlatform() === 'android') {
+            if (Capacitor.getPlatform() === 'ios') {
                 await Share.share({
                     title: 'Exported Excel File',
                     text: 'Here is your exported Excel file.',
@@ -528,8 +528,14 @@ function Basket() {
                 const response = await Axios.post('/search/stoneUser?type=excel', payload);
 
                 if (response.data.status === 'success') {
-                    window.open(`${baseURL}/exports/${response.data.fileName}`)
+                    const link = document.createElement('a');
+                    link.href = `${baseURL}/exports/${response.data.fileName}`;
+                    link.download = response.data.fileName; // Suggests download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 }
+                
             } catch (error) {
                 console.log(error);
             } finally {
@@ -813,7 +819,7 @@ function Basket() {
                         />
                     </div>
                 </IonContent >
-                <Bottom />
+                <Bottom isAuthenticated={isAuthenticated}/>
             </IonPage>
     );
 }

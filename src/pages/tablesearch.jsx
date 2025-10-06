@@ -50,7 +50,7 @@ import Axios, { baseURL } from "../service/jwtAuth"
 import { useLocation } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 
-function Tablesearch() {
+function Tablesearch({isAuthenticated}) {
     const history = useHistory();
     const [selectedRows, setSelectedRows] = useState([]);
     const [sortBy, setSortBy] = useState("");
@@ -225,11 +225,17 @@ function Tablesearch() {
             const response = await Axios.post('/search/stoneUser?type=excel', payload);
 
             if (response.data.status === 'success') {
-                window.open(`${baseURL}/exports/${response.data.fileName}`)
+                const link = document.createElement('a');
+                link.href = `${baseURL}/exports/${response.data.fileName}`;
+                link.download = response.data.fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            
                 setToastMessage(response?.data?.status);
                 setShowToast(true);
-                // setSelectedRows([]);
             }
+            
 
 
         } catch (error) {
@@ -521,7 +527,7 @@ function Tablesearch() {
                     duration={2000}
                 />
             </IonContent >
-                       <Bottom />
+                       <Bottom isAuthenticated={isAuthenticated}/>
                        </IonPage>
         </ >
     );

@@ -73,20 +73,24 @@ function Login() {
                     localStorage.removeItem('rememberedPassword');
                     localStorage.removeItem('rememberMeChecked');
                 }
+                setToastMessage(response?.data?.status);
+                setShowToast(true);
+                history.push("/home");
+                window.location.href = '/home';
             } else {
                 setError(response.data.message || 'Login failed')
-
+                alert(response.data.message || 'Login failed')
+                // setToastMessage(response?.data?.message || 'Login failed');
+                // setShowToast(true);
             }
-            setToastMessage(response?.data?.status);
-            setShowToast(true);
-            history.push("/home");
-            window.location.href = '/home';
+            
         } catch (err) {
             setError('An error occurred. Please try again.', err)
             console.log('An error occurred. Please try again.', err)
-            setToastMessage('Username or Password is Incorrect. Try again')
+            alert('Username or Password is Incorrect. Try again')
+            // setToastMessage('Username or Password is Incorrect. Try again')
             // setToastMessage('User not found.');
-            setShowToast(true);
+            // setShowToast(true);
         } finally {
             setLoading(false)
         }
@@ -113,7 +117,6 @@ function Login() {
         <>
             <IonPage style={{ background: '#ffffff' }}>
                 <div className='main-bg' style={{ width: '100%', height: '100%' }}>
-                    <div style={{ width: '100%', height: '30px', background: '#4c3226', position: 'absolute', left: ' 0', top: '0' }}></div>
                     <img
                         className='freemlogin1'
                         src="img/freemlogin.png"

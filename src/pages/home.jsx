@@ -19,7 +19,7 @@ import Axios, { baseURL } from "../service/jwtAuth";
 import { SearchContext } from "../context/SearchContext";
 import { useHistory, useLocation } from "react-router-dom";
 
-const Home = () => {
+const Home = ({isAuthenticated}) => {
   const history = useHistory();
   const [showModal, setShowModal] = useState(false);
   const {setSearchState, searchState } = useContext(SearchContext);
@@ -358,7 +358,7 @@ const Home = () => {
   return (
     <>
     <IonPage>
-        <Header />
+        <Header isAuthenticated={isAuthenticated}/>
       {/* <IonHeader>
         
       </IonHeader> */}
@@ -837,7 +837,7 @@ const Home = () => {
           </div>
         )}
       </IonContent>
-      <Bottom />
+      <Bottom isAuthenticated={isAuthenticated}/>
     </IonPage>
     </>
   );

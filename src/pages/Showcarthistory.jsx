@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 import Axios from "../service/jwtAuth";
 import Bottom from './bottomtab';
 
-const Weborder = () => {
+const Weborder = ({isAuthenticated}) => {
     // const [formData, setFormData] = useState({
     //     oldPassword: '',
     //     newPassword: '',
@@ -128,7 +128,7 @@ const Weborder = () => {
                     </IonGrid>
                 </div>
             </IonContent>
-           <Bottom />
+           <Bottom isAuthenticated={isAuthenticated}/>
            </IonPage>
         </>
     )

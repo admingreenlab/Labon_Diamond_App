@@ -57,7 +57,7 @@ import { saveAs } from 'file-saver';
 // import * as XLSX from 'xlsx';
 import XLSX from "xlsx-js-style";
 
-function Polishtable() {
+function Polishtable({isAuthenticated}) {
     const history = useHistory();
     const [selectedRows, setSelectedRows] = useState([]);
     const [sortBy, setSortBy] = useState("");
@@ -401,35 +401,34 @@ const handleDownload = async () => {
     const fileName = `ExportedData_${Date.now()}.xlsx`;
 
     try {
-        const result = await Filesystem.writeFile({
-            path: fileName,
-            data: wbout,
-            directory: Directory.Documents,
-            encoding: Encoding.BASE64,
-        });
-
-        console.log('File saved at:', result.uri);
-        const uri = result.uri; // Use directly
-
-        alert(`File saved as: ${fileName}`);
-
-        if (Capacitor.getPlatform() === 'android') {
-            await Share.share({
-                title: 'Exported Excel File',
-                text: 'Here is your exported Excel file.',
-                url: uri,
-                dialogTitle: 'Share your file',
-            });
-        }
-
-        setToastMessage('✅ File exported successfully!');
-        setShowToast(true);
-    } catch (error) {
-        console.error('Error saving or sharing file:', error);
-       
-        setShowToast(true);
-    }
-};
+                const result = await Filesystem.writeFile({
+                    path: fileName,
+                    data: wbout,
+                    directory: Directory.Documents,
+                    encoding: Encoding.BASE64,
+                });
+        
+                console.log('File saved at:', result.uri);
+                const uri = result.uri; // Use directly
+        
+                alert(`File saved as: ${fileName}`);
+        
+                if (Capacitor.getPlatform() === 'ios') {
+                    await Share.share({
+                        title: 'Exported Excel File',
+                        text: 'Here is your exported Excel file.',
+                        url: uri,
+                        dialogTitle: 'Share your file',
+                    });
+                }
+        
+                setToastMessage('✅ File exported successfully!');
+                setShowToast(true);
+            } catch (error) {
+                console.error('Error saving or sharing file:', error);       
+                setShowToast(true);
+            }
+        };
 
 
 
@@ -837,7 +836,7 @@ const handleDownload = async () => {
                         duration={2000}
                     />
                 </IonContent >
-                <Bottom />
+                <Bottom isAuthenticated={isAuthenticated}/>
             </IonPage>
         </ >
     );

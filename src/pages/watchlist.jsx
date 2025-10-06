@@ -46,7 +46,7 @@ import { Autoplay, Keyboard, Pagination, Scrollbar, Zoom } from 'swiper/modules'
 import Axios from "../service/jwtAuth";
 
 
-function Watchlist() {
+function Watchlist({isAuthenticated}) {
     const [selectedRows, setSelectedRows] = useState([]);
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
@@ -603,7 +603,7 @@ function Watchlist() {
                 />
 
             </IonContent >
-           <Bottom />
+           <Bottom isAuthenticated={isAuthenticated}/>
            </IonPage>
         </ >
     );

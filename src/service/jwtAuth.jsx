@@ -46,6 +46,27 @@ Axios.interceptors.request.use(
 );
 
 
+Axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear authentication data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("branches");
+      
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 export const setAuthToken = (data, isRememberMe) => {
   console.log(data);
   if (data) {

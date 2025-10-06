@@ -42,6 +42,7 @@ import Polish from './pages/polish';
 import { PolishProvider } from './context/PolishContext';
 import Polishtable from './pages/polishtable';
 import { App as CapacitorApp } from '@capacitor/app';
+import { AccountDelete } from './pages/accountdelete';
 // import Jewel from './pages/jewel';
 
 setupIonicReact({ mode: 'md' });
@@ -96,49 +97,64 @@ function App() {
   return (
     <>
  <IonApp>
-      <IonReactRouter>
-        <SearchProvider>
-          <BasketProvider>
-            <PolishProvider>
-              <IonTabs id="main-content">
-                <IonRouterOutlet>
-                  <Route exact path="/">
-                    {isAuthenticated ? <Redirect to="/home" /> : <Redirect to="/login" />}
-                  </Route>
-                  <Route path="/register" component={Register} exact={true} />
-                  {/* <Route path="/webhistory" render={() => <WebHistory></WebHistory>} exact={true} /> */}
-                  <Route
-                    path="/login"
-                    render={() => (isAuthenticated ? <Redirect to="/home" /> : <Login setIsAuthenticated={setIsAuthenticated} />)}
-                    exact={true}
-                  />
+ <IonReactRouter>
+    <SearchProvider>
+      {isAuthenticated ? (
+        <BasketProvider>
+          <PolishProvider>
+            <IonTabs id="main-content">
+              <IonRouterOutlet>
+                <Route exact path="/">
+                  <Redirect to="/home" />
+                </Route>
+                <Route path="/register" component={Register} exact={true} />
+                <Route
+                  path="/login"
+                  render={() => (isAuthenticated ? <Redirect to="/home" /> : <Login setIsAuthenticated={setIsAuthenticated} />)}
+                  exact={true}
+                />
 
-
-                  {isAuthenticated ? (
-                    <>
-                      <Route path="/home" render={() => <Home></Home>} exact={true} />
-                      <Route path="/login" render={() => <Login />} exact={true} />
-                      <Route path="/register" render={() => <Register />} exact={true} />
-                      <Route path="/changepass" render={() => <Changepass></Changepass>} exact={true} />
-                      <Route path="/webhistory" render={() => <WebHistory></WebHistory>} exact={true} />
-                      <Route path="/watchlist" render={() => <Watchlist></Watchlist>} exact={true} />
-                      <Route path="/basket" render={() => <Basket></Basket>} exact={true} />
-                      <Route path="/tableshow" render={() => <Tablesearch />} exact={true} />
-                      <Route path="/polishtableshow" render={() => <Polishtable />} exact={true} />
-                      {/* <Route path="/jewel" render={() => <Jewel />} exact={true} /> */}
-                    
-                      <Route path="/webhistorytable" render={() => <WebHistorytable></WebHistorytable>} exact={true} />
-                      <Route path="/polish" render={() => <Polish></Polish>} exact={true} />
-                    </>
-                  ) : (
-                    <Redirect to="/" />
-                  )}
-                </IonRouterOutlet>
-              </IonTabs>
-            </PolishProvider>
-          </BasketProvider>
-        </SearchProvider>
-      </IonReactRouter>
+                {isAuthenticated ? (
+                  <>
+                    <Route path="/home" render={() => <Home isAuthenticated={isAuthenticated}></Home>} exact={true} />
+                    <Route path="/login" render={() => <Login />} exact={true} />
+                    <Route path="/register" render={() => <Register />} exact={true} />
+                    <Route path="/changepass" render={() => <Changepass isAuthenticated={isAuthenticated}></Changepass>} exact={true} />
+                    <Route path="/webhistory" render={() => <WebHistory isAuthenticated={isAuthenticated}></WebHistory>} exact={true} />
+                    <Route path="/watchlist" render={() => <Watchlist isAuthenticated={isAuthenticated}></Watchlist>} exact={true} />
+                    <Route path="/basket" render={() => <Basket isAuthenticated={isAuthenticated}></Basket>} exact={true} />
+                    <Route path="/tableshow" render={() => <Tablesearch isAuthenticated={isAuthenticated}/>} exact={true} />
+                    <Route path="/polishtableshow" render={() => <Polishtable isAuthenticated={isAuthenticated}/>} exact={true} />
+                    <Route path="/webhistorytable" render={() => <WebHistorytable isAuthenticated={isAuthenticated}></WebHistorytable>} exact={true} />
+                    <Route path="/polish" render={() => <Polish isAuthenticated={isAuthenticated}></Polish>} exact={true} />
+                    <Route path="/deleteaccount" render={() => <AccountDelete isAuthenticated={isAuthenticated}></AccountDelete>} exact={true} />
+                  </>
+                ) : (
+                  <Redirect to="/" />
+                )}
+              </IonRouterOutlet>
+            </IonTabs>
+          </PolishProvider>
+        </BasketProvider>
+      ) : (
+        <IonTabs id="main-content">
+          <IonRouterOutlet>
+            <Route exact path="/">
+              <Redirect to="/home" />
+            </Route>
+            <Route path="/register" component={Register} exact={true} />
+            <Route
+              path="/login"
+              render={() => (isAuthenticated ? <Redirect to="/home" /> : <Login setIsAuthenticated={setIsAuthenticated} />)}
+              exact={true}
+            />
+            <Route path="/home" render={() => <Home isAuthenticated={isAuthenticated}></Home>} exact={true} />
+            <Redirect to="/login" />
+          </IonRouterOutlet>
+        </IonTabs>
+      )}
+    </SearchProvider>
+  </IonReactRouter>
 
       {!hideTabBarRoutes.includes(window.location.pathname) && (
 
