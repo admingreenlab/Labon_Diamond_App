@@ -1,41 +1,52 @@
-import { createContext, useState, useEffect} from 'react';
-import Axios, { baseURL } from "../service/jwtAuth";
-
+import { createContext, useState, useEffect } from 'react';
+import Axios from "../service/jwtAuth";
 
 const BasketContext = createContext();
 
 const BasketProvider = ({ children }) => {
-  const [basketCount, setBasketCount] = useState(0); // Define state for basket count
+  const [basketCount, setBasketCount] = useState(0);
   const isFetching = { current: false };
 
-  const fetchData = async () => {
+  const fetchDatas = async () => {
     if (isFetching.current) return;
+
     isFetching.current = true;
     try {
-      const response = await Axios.post('user/userbasket', {
+      // Fetch SINGLE items
+      const singleRes = await Axios.post('user/userbasket', {
         type: 'S',
         stype: 'single'
       });
 
-      if (response.status === 200) {
-        setBasketCount(response?.data?.data?.length || 0);
-      }
+      // Fetch PARCEL items
+      const parcelRes = await Axios.post('user/userbasket', {
+        type: 'S',
+        stype: 'parcel'
+      });
+
+      const singleCount = singleRes?.data?.data?.length || 0;
+      const parcelCount = parcelRes?.data?.data?.length || 0;
+
+      // TOTAL = single + parcel
+      setBasketCount(singleCount + parcelCount);
+
     } catch (err) {
-      console.log("Failed to fetch data. Please try again.");
+      console.log("Failed to fetch basket data.");
     } finally {
       isFetching.current = false;
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchDatas();
   }, []);
 
   return (
-    <BasketContext.Provider value={{ basketCount, setBasketCount }}>
+    <BasketContext.Provider value={{ basketCount, setBasketCount, fetchDatas }}>
       {children}
     </BasketContext.Provider>
   );
 };
 
 export { BasketProvider, BasketContext };
+

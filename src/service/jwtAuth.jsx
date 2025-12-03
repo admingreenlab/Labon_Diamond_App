@@ -1,8 +1,10 @@
 import jwtAxios from "axios";
 import { BACKEND_APP_URL } from '../config';
 
+
 export const baseURL = 'https://labonstkback.labon.diamonds'
 
+// export const baseURL = 'http://192.168.6.32:4747'
 
 const Axios = jwtAxios.create({
   baseURL: baseURL,
@@ -44,6 +46,8 @@ Axios.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+
 
 
 export const setAuthToken = (data, isRememberMe) => {

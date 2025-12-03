@@ -11,7 +11,8 @@ import {
   IonTextarea,
   IonButton,
   IonModal,
-  IonToast
+  IonToast,
+  IonLoading
 } from "@ionic/react";
 import Header from './head';
 import Axios, { baseURL } from "../service/jwtAuth";
@@ -67,7 +68,7 @@ const Polish = () => {
     ],
     Color: ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'G+', 'F.I.BLUE'],
     Clarity: ['VS+', 'SI+', 'FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'SI3', 'I1', 'I2', 'I3'],
-    FL_MAIN_LOT: ['-2', '+2-6.5', '+6.5-11', '+11-14', '1/10', '1/6', '1/5', '1/4', '1/3', '3/8', '1/2', '3/4', 'None', '+7-10', '-', '+1.5-2', '1.04DABBI', '1.00-1.49', '+00-0', '+000-00', '+0-1'],
+    CARAT: ['-2', '+2-6.5', '+6.5-11', '+11-14', '1/10', '1/6', '1/5', '1/4', '1/3', '3/8', '1/2', '3/4', 'None', '+7-10', '-', '+1.5-2', '1.04DABBI', '1.00-1.49', '+00-0', '+000-00', '+0-1'],
     // Cut: ['ID', 'EX', 'VG'],
     // Lab: ['IGI', 'GIA', 'GSI', 'NONC', 'GCAL', 'NO_CERT'],
     // Polish: ['ID', 'EX', 'VG', 'GD', 'FR'],
@@ -110,7 +111,7 @@ const Polish = () => {
         // Symm: searchpolish.SYMM || [],
         // Flour: searchpolish.FLOUR || [],
         location: searchpolish.location || [],
-        FL_MAIN_LOT: searchpolish.FL_MAIN_LOT || [],
+        CARAT: searchpolish.CARAT || [],
       });
 
       setCarat({
@@ -246,7 +247,7 @@ const Polish = () => {
       SHAPE: selectedOptionss.SHAPES || [],
       // SYMM: selectedOptions.Symm || [],
       location: selectedOptionss.location || [],
-      FL_MAIN_LOT: selectedOptionss.FL_MAIN_LOT || [],
+      CARAT: selectedOptionss.CARAT || [],
       stoneCert: stoneId || "",
       // FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
@@ -308,7 +309,7 @@ const Polish = () => {
       // SYMM: selectedOptions.Symm || [],
       location: selectedOptionss.location || [],
       stoneCert: stoneId || "",
-      FL_MAIN_LOT: selectedOptionss.FL_MAIN_LOT || [],
+      CARAT: selectedOptionss.CARAT || [],
       // FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
 
@@ -373,10 +374,10 @@ const Polish = () => {
             <h5 class="text-center mb-5 element">Polish Parcel</h5>
           </div>
           <div style={{ display: "flex", justifyContent: "start", alignContent: "center", gap: "15px",padding:"20px 7px"}}>
-            <a href='/home'>
+             <a onClick={() => history.push('/home')}>
               <button className="sumbutton sumbutton-11">Polish Certified</button>
             </a>
-            <a href='/polish'>
+            <a onClick={() => history.push('/polish')}>
               <button type="button" class="sumbutton ">Polish Parcel</button>
             </a>
               {/* <a href='/jewel'>
@@ -461,7 +462,7 @@ const Polish = () => {
                   className="forminput"
                   placeholder="Enter Stone Id or Certificate Number"
                   value={stoneId}
-                  onChange={(e) => setStoneId(e.target.value)}
+                  onChange={(e) => setStoneId(e.target.value.trim().toUpperCase())}
                 />
               </div>
             </IonCol>
@@ -469,7 +470,7 @@ const Polish = () => {
           <IonRow>
             <IonCol size="12">
               <div className="main-box">
-                {["FL_MAIN_LOT"].map((category) => (
+                {["CARAT"].map((category) => (
                   <div className="mainbox" key={category}>
                     <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Carat Range</h5>
                     <div className="checkbox-group">
@@ -795,7 +796,7 @@ const Polish = () => {
                             Available
                           </label>
                         </div>
-                        <div className=""  >
+                        {/* <div className=""  >
                           <label style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <input
                               type="checkbox"
@@ -820,7 +821,7 @@ const Polish = () => {
                             />
                             Hold
                           </label>
-                        </div>
+                        </div> */}
                       </IonCol>
 
                     </IonRow>
@@ -833,7 +834,7 @@ const Polish = () => {
           <IonRow>
             <IonCol size="12" className="ion-text-center" style={{marginTop:'10px'}}>
               <div className="mainbtn">
-                <button className="sumbutton" onClick={handlesearch} disabled={isLoading} >{isLoading ? "Loading..." : "Search"}</button>
+                <button className="sumbutton" onClick={handlesearch} disabled={isLoading} >Search</button>
                 <span onClick={handleAdvanceSearchClick}>
                   <button className="sumbutton">  {isAdvanceSearchOpen ? "Close Advance Search" : "Advance Search"}</button>
                 </span>
@@ -842,6 +843,13 @@ const Polish = () => {
             </IonCol>
           </IonRow>
         </IonGrid>
+
+        <IonLoading
+          isOpen={isLoading}
+          message="Searching..."
+          spinner="crescent"
+          onDidDismiss={() => setIsLoading(false)}
+        />
 
         <IonToast
           isOpen={showToast}

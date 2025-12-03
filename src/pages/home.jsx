@@ -11,13 +11,15 @@ import {
   IonTextarea,
   IonButton,
   IonModal,
-  IonToast
+  IonToast,
+  IonLoading 
 } from "@ionic/react";
 import Header from './head';
 import Bottom from './bottomtab';
 import Axios, { baseURL } from "../service/jwtAuth";
 import { SearchContext } from "../context/SearchContext";
 import { useHistory, useLocation } from "react-router-dom";
+
 
 const Home = () => {
   const history = useHistory();
@@ -155,7 +157,6 @@ const Home = () => {
     const storedOptions = localStorage.getItem('selectedOptions');
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
-      // console.log('Stored Options:', JSON.parse(storedOptions));
     }
   }, []);
 
@@ -369,10 +370,10 @@ const Home = () => {
             <h5 class="text-center mb-5 element">Polish Certified</h5>
           </div>
           <div style={{ display: "flex", justifyContent: "start", alignContent: "center", gap: "15px",padding:"20px 7px"}}>
-            <a href='/home'>
+            <a onClick={() => history.push('/home')}>
               <button className="sumbutton ">Polish Certified</button>
             </a>
-            <a href='/polish'>
+            <a onClick={() => history.push('/polish')}>
               <button type="button" class="sumbutton sumbutton-11">Polish Parcel</button>
             </a>
             {/* <a href='/jewel'>
@@ -457,7 +458,7 @@ const Home = () => {
                   className="forminput"
                   placeholder="Enter Stone Id or Certificate Number"
                   value={stoneId}
-                  onChange={(e) => setStoneId(e.target.value)}
+                   onChange={(e) => setStoneId(e.target.value.trim())}
                 />
               </div>
             </IonCol>
@@ -792,7 +793,10 @@ const Home = () => {
           <IonRow>
             <IonCol size="12" className="ion-text-center" style={{marginTop:'10px'}}>
               <div className="mainbtn">
-                <button className="sumbutton" onClick={handlesearch} disabled={isLoading} >{isLoading ? "Loading..." : "Search"}</button>
+                <button className="sumbutton" onClick={handlesearch} disabled={isLoading}>
+                Search
+              </button>
+
                 <span onClick={handleAdvanceSearchClick}>
                   <button className="sumbutton">  {isAdvanceSearchOpen ? "Close Advance Search" : "Advance Search"}</button>
                 </span>
@@ -801,6 +805,13 @@ const Home = () => {
             </IonCol>
           </IonRow>
         </IonGrid>
+
+        <IonLoading
+          isOpen={isLoading}
+          message="Searching..."
+          spinner="crescent"
+          onDidDismiss={() => setIsLoading(false)}
+        />
 
         <IonToast
           isOpen={showToast}

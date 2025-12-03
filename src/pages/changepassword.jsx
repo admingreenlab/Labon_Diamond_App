@@ -68,8 +68,6 @@
 //         }
 //     };
 
-
-
 //     return (
 //         <>
 //             <Header />
@@ -131,8 +129,7 @@
 
 // export default chanagepass;
 
-
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 import {
   IonButton,
   IonModal,
@@ -158,25 +155,25 @@ import {
   IonChip,
   IonicSlides,
   IonButtons,
-  IonToast
-} from '@ionic/react';
-import { IonCol, IonGrid, IonRow, IonTabButton } from '@ionic/react';
-import Header from './head';
-import '../pages/Tab1.css';
+  IonToast,
+} from "@ionic/react";
+import { IonCol, IonGrid, IonRow, IonTabButton } from "@ionic/react";
+import Header from "./head";
+import "../pages/Tab1.css";
 import Axios, { baseURL } from "../service/jwtAuth";
 import { useHistory } from "react-router-dom";
-import Bottom from './bottomtab';
+import Bottom from "./bottomtab";
 
 function Product() {
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [formData, setFormData] = useState({
-    oldPassword: '',
-    newPassword: '',
-    retypePassword: '',
+    oldPassword: "",
+    newPassword: "",
+    retypePassword: "",
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const history = useHistory();
 
   // Handle input changes
@@ -194,128 +191,179 @@ function Product() {
 
     // Validate passwords
     if (formData.newPassword !== formData.retypePassword) {
-      setError('New password and retype password do not match.');
+      setError("New password and retype password do not match.");
       return;
     }
 
     try {
       // Send data to the backend
-      const response = await Axios.post('user/changePassword', {
+      const response = await Axios.post("user/changePassword", {
         old_password: formData.oldPassword,
         new_password: formData.newPassword,
       });
 
       const result = await response.data;
-      
-
 
       if (response.status === 200) {
         // Success
         setSuccess(result.message);
-        setError('');
-        setFormData({ oldPassword: '', newPassword: '', retypePassword: '' }); // Reset form
-        setToastMessage(response?.data?.status);
+        setError("");
+        setFormData({ oldPassword: "", newPassword: "", retypePassword: "" }); // Reset form
+        setToastMessage(response?.data?.message);
         setShowToast(true);
-        history.push("/home");
+        setTimeout(() => {
+          history.push("/home");
+        }, 3000);
       } else {
         // Error
-        setError(result.message || 'An error occurred while changing the password.');
-        setSuccess('');
-        
+        setError(
+          result.message || "An error occurred while changing the password."
+        );
+        setSuccess("");
       }
     } catch (err) {
-      // if (response.data.message === "Old password is incorrect") {
-      // setError("Old password is incorrect");
-      // console.error(err);
       setError(err.response.data.message);
-      setSuccess('');
-      setToastMessage(err.response.data)
-      // setToastMessage('User not found.');
+      setSuccess("");
+      setToastMessage(err.response.data.message);
       setShowToast(true);
     }
   };
 
   return (
     <>
-    <IonPage>
-      <Header />
-      <IonContent  style={{ paddingBottom: '80x', marginBottom: '100px', marginTop: '10px' }}>
-        <div style={{ marginTop: '20px' }}>
-          <h5 class="text-center mb-5 element">Change user Password</h5>
-        </div>
-        <div className='myquotations'>
-          <IonGrid>
-            <IonRow style={{ justifyContent: "center" }}>
-              <IonCol sizeMd='8' size='12'>
-                <form onSubmit={handleSubmit}>
-                  <div className='main-web'>
-                    <ul>
-                      <li className='left-text'>
-                        <div>
-                          <h6>Old Password:</h6>
-                        </div>
-                      </li>
-                      <li>
-                        <li style={{ textAlign: "center", fontFamily: "Prompt", color: "#f3a41c" }}>
+      <IonPage>
+        <Header />
+        <IonContent
+          style={{
+            paddingBottom: "80x",
+            marginBottom: "100px",
+            marginTop: "10px",
+          }}
+        >
+          <div style={{ marginTop: "20px" }}>
+            <h5 class="text-center mb-5 element">Change user Password</h5>
+          </div>
+          <div className="myquotations">
+            <IonGrid>
+              <IonRow style={{ justifyContent: "center" }}>
+                <IonCol sizeMd="8" size="12">
+                  <form onSubmit={handleSubmit}>
+                    <div className="main-web">
+                      <ul>
+                        <li className="left-text">
+                          <div>
+                            <h6>Old Password:</h6>
+                          </div>
+                        </li>
+                        <li>
+                          <li
+                            style={{
+                              textAlign: "center",
+                              fontFamily: "Prompt",
+                              color: "#f3a41c",
+                            }}
+                          >
+                            <input
+                              style={{
+                                background: "#ffdeb300",
+                                color: "#000",
+                                padding: "4px",
+                                width: "100%",
+                                border: "1px solid rgb(195 189 181)",
+                              }}
+                              type="password"
+                              placeholder="Type Old Password"
+                              name="oldPassword"
+                              value={formData.oldPassword}
+                              onChange={handleChange}
+                              required
+                            />
+                          </li>
+                        </li>
+                      </ul>
+                      <ul>
+                        <li className="left-text">
+                          <div>
+                            <h6>New Password:</h6>
+                          </div>
+                        </li>
+                        <li>
                           <input
-                            style={{ background: '#ffdeb300', color: '#000', padding: '4px', width: '100%', border: '1px solid rgb(195 189 181)' }}
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              padding: "4px",
+                              width: "100%",
+                              border: "1px solid rgb(195 189 181)",
+                            }}
                             type="password"
-                            placeholder="Type Old Password"
-                            name="oldPassword"
-                            value={formData.oldPassword}
+                            placeholder="Type New Password"
+                            name="newPassword"
+                            value={formData.newPassword}
                             onChange={handleChange}
                             required
                           />
                         </li>
-                      </li>
-                    </ul>
-                    <ul>
-                      <li className='left-text'>
-                        <div>
-                          <h6>New Password:</h6>
-                        </div>
-                      </li>
-                      <li>
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', padding: '4px', width: '100%', border: '1px solid rgb(195 189 181)' }} type="password"
-                          placeholder="Type New Password"
-                          name="newPassword"
-                          value={formData.newPassword}
-                          onChange={handleChange}
-                          required />
-                      </li>
-                    </ul>
-                    <ul>
-                      <li className='left-text'>
-                        <h6>Retype Password:</h6>
-                      </li>
-                      <li>
-                        <input style={{ background: '#ffdeb300', color: '#000', padding: '4px', width: '100%', border: '1px solid rgb(195 189 181)' }}
-                          type="password"
-                          placeholder="Retype New Password"
-                          name="retypePassword"
-                          value={formData.retypePassword}
-                          onChange={handleChange}
-                          required />
-                      </li>
-                    </ul>
-                    <button className="sumbutton"  type="submit" style={{ display: "flex", margin: "18px auto" }}>Change Password</button>
-                  </div>
-                </form>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </div>
+                      </ul>
+                      <ul>
+                        <li className="left-text">
+                          <h6>Retype Password:</h6>
+                        </li>
+                        <li>
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              padding: "4px",
+                              width: "100%",
+                              border: "1px solid rgb(195 189 181)",
+                            }}
+                            type="password"
+                            placeholder="Retype New Password"
+                            name="retypePassword"
+                            value={formData.retypePassword}
+                            onChange={handleChange}
+                            required
+                          />
+                          {error &&
+                            formData.retypePassword &&
+                            formData.retypePassword !==
+                              formData.newPassword && (
+                              <p
+                                style={{
+                                  color: "red",
+                                  fontSize: "12px",
+                                  marginTop: "4px",
+                                }}
+                              >
+                                {error}
+                              </p>
+                            )}
+                        </li>
+                      </ul>
+                      <button
+                        className="sumbutton"
+                        type="submit"
+                        style={{ display: "flex", margin: "18px auto" }}
+                      >
+                        Change Password
+                      </button>
+                    </div>
+                  </form>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
             <IonToast
-                        isOpen={showToast}
-                        onDidDismiss={() => setShowToast(false)}
-                        message={toastMessage}
-                        duration={2000}
-                    />
-      </IonContent >
-      <Bottom />
+              isOpen={showToast}
+              onDidDismiss={() => setShowToast(false)}
+              message={toastMessage}
+              duration={2000}
+            />
+          </div>
+        </IonContent>
+        <Bottom />
       </IonPage>
-    </ >
+    </>
   );
 }
-export default Product; 
+export default Product;

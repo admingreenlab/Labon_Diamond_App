@@ -33,6 +33,7 @@ import Watchlist from './pages/watchlist';
 import Basket from './pages/basket';
 import { BasketProvider } from './context/BasketContext';
 import { SearchProvider } from './context/SearchContext';
+import { WatchlistProvider } from './context/Wishlistcontext';
 import Home from './pages/home';
 import Tablesearch from './pages/tablesearch';
 import WebHistory from './pages/webhistory';
@@ -58,11 +59,31 @@ function App() {
     return !!token;
   };
 
-  const [isAuthenticated, setIsAuthenticated] = useState(isAuthenticatedR());
+const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
+
+
+
+function checkAuth() {
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
+  if (!token) return false;
+
+  try {
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    return decoded.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+}
+
 
   useEffect(() => {
-    setIsAuthenticated(isAuthenticatedR());
+    setIsAuthenticated(checkAuth());
   }, []);
+
+
 
     const lastBackPress = useRef(0);
 
@@ -97,6 +118,7 @@ function App() {
         <SearchProvider>
           <BasketProvider>
             <PolishProvider>
+            <WatchlistProvider>
               <IonTabs id="main-content">
                 <IonRouterOutlet>
                   <Route exact path="/">
@@ -104,12 +126,17 @@ function App() {
                   </Route>
                   <Route path="/register" component={Register} exact={true} />
                   {/* <Route path="/webhistory" render={() => <WebHistory></WebHistory>} exact={true} /> */}
-                  <Route
-                    path="/login"
-                    render={() => (isAuthenticated ? <Redirect to="/home" /> : <Login setIsAuthenticated={setIsAuthenticated} />)}
-                    exact={true}
-                  />
-
+                              <Route
+                  path="/login"
+                  render={() =>
+                    isAuthenticated ? (
+                      <Redirect to="/home" />
+                    ) : (
+                      <Login setIsAuthenticated={setIsAuthenticated} />
+                    )
+                  }
+                  exact
+                />
 
                   {isAuthenticated ? (
                     <>
@@ -132,6 +159,7 @@ function App() {
                   )}
                 </IonRouterOutlet>
               </IonTabs>
+            </WatchlistProvider>
             </PolishProvider>
           </BasketProvider>
         </SearchProvider>

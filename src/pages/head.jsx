@@ -34,29 +34,29 @@ function apps() {
     const { setSearchState, searchState } = useContext(SearchContext);
 
 
-    const fetchData = async () => {
-        if (isFetching.current) return;
-        isFetching.current = true;
-        try {
-            const response = await Axios.get('user/watchlist');
+    // const fetchData = async () => {
+    //     if (isFetching.current) return;
+    //     isFetching.current = true;
+    //     try {
+    //         const response = await Axios.get('user/watchlist');
 
-            if (response.status === 200) {
-                setData(response?.data?.data?.length); // Update state only if the component is still mounted
-                // console.log(response?.data?.data?.length)
-            }
-        }
-        catch (err) {
-            console.log("Failed to fetch data. Please try again."); // Set error state
-        }
-        finally {
+    //         if (response.status === 200) {
+    //             setData(response?.data?.data?.length); // Update state only if the component is still mounted
+    //             // console.log(response?.data?.data?.length)
+    //         }
+    //     }
+    //     catch (err) {
+    //         console.log("Failed to fetch data. Please try again."); // Set error state
+    //     }
+    //     finally {
 
-            isFetching.current = false;
-        }
-    };
+    //         isFetching.current = false;
+    //     }
+    // };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    // useEffect(() => {
+    //     fetchData();
+    // }, []);
 
     const toggleDropdown = (e) => {
         e?.stopPropagation();
@@ -145,7 +145,7 @@ function apps() {
                  
             </IonHeader>
             {showDropdown && (
-                <div className='dropdown-menu' style={{ position: 'absolute', right: '15px', top: '50px', border: '1px solid #ccc', zIndex: 1000 }}>
+                <div className='dropdown-menu' >
                     <div className="profile">
                         <h6 className="text-center mt-2">{clientName}</h6>
                     </div>
@@ -153,9 +153,7 @@ function apps() {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-box-arrow-in-left" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"></path><path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708z"></path></svg>
                         Logout</a>
                 </div>
-            )}
-
-           
+            )}          
         </>
     );
 }
