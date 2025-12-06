@@ -116,9 +116,9 @@ function apps() {
 
     return (
         <>
-            <IonHeader style={{ paddingTop: 'var(--ion-safe-area-top, 0)' }}>
+            <IonHeader >
                 <IonToolbar >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', marginTop: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1px 0', marginTop: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <IonButtons slot="start">
                                 <IonMenuButton fill='clear' >

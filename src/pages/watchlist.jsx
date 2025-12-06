@@ -241,6 +241,7 @@ function Watchlist() {
           setShowToast(true);
           setSelectedRows([]);
         }
+        await fetchDatas();
       } else {
         window.alert("Please select stone");
       }
