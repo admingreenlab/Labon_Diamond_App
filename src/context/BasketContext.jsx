@@ -3,6 +3,7 @@ import Axios from "../service/jwtAuth";
 
 const BasketContext = createContext();
 
+
 const BasketProvider = ({ children }) => {
   const [basketCount, setBasketCount] = useState(0);
   const isFetching = { current: false };
@@ -24,11 +25,16 @@ const BasketProvider = ({ children }) => {
         stype: 'parcel'
       });
 
+      const jewelRes = await Axios.post("user/userbasket", {
+        type: "S",
+        stype: "JEWEL",
+        });
+
       const singleCount = singleRes?.data?.data?.length || 0;
       const parcelCount = parcelRes?.data?.data?.length || 0;
-
+      const jewelCount = jewelRes?.data?.data?.length || 0;
       // TOTAL = single + parcel
-      setBasketCount(singleCount + parcelCount);
+      setBasketCount(singleCount + parcelCount + jewelCount );
 
     } catch (err) {
       console.log("Failed to fetch basket data.");

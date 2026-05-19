@@ -12,19 +12,18 @@ import {
   IonButton,
   IonModal,
   IonToast,
-  IonLoading 
+  IonLoading,
 } from "@ionic/react";
-import Header from './head';
-import Bottom from './bottomtab';
+import Header from "./head";
+import Bottom from "./bottomtab";
 import Axios, { baseURL } from "../service/jwtAuth";
 import { SearchContext } from "../context/SearchContext";
 import { useHistory, useLocation } from "react-router-dom";
 
-
 const Home = () => {
   const history = useHistory();
   const [showModal, setShowModal] = useState(false);
-  const {setSearchState, searchState } = useContext(SearchContext);
+  const { setSearchState, searchState } = useContext(SearchContext);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [carat, setCarat] = useState({ from: "", to: "" });
   const [US$CT, setUS$CT] = useState({ from: "", to: "" });
@@ -33,7 +32,7 @@ const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState(false);
   const [showVVS2, setShowVVS2] = useState(false);
-  const [remark, setRemark] = useState('');
+  const [remark, setRemark] = useState("");
   const [isAdvanceSearchOpen, setIsAdvanceSearchOpen] = useState(false);
   const [advanceSearchFields, setAdvanceSearchFields] = useState({
     tableFrom: "",
@@ -48,44 +47,72 @@ const Home = () => {
   });
   const [searchResults, setSearchResults] = useState([]);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
 
-
   const categories = {
     Shape: [
-      { name: "Round", shapeicon: "ico-shp icon-round-shape" },
-      { name: "Oval", shapeicon: "ico-shp icon-oval-shape" },
-      { name: "Pear", shapeicon: "ico-shp icon-pear-shape" },
-      { name: "Marquise", shapeicon: "ico-shp icon-marquise-shape" },
-      { name: "Heart", shapeicon: "ico-shp icon-heart-shape" },
-      { name: "Emerald", shapeicon: "ico-shp icon-emerald-shape" },
-      { name: "Cushion", shapeicon: "ico-shp icon-cushion-shape" },
-      { name: "Princess", shapeicon: "ico-shp icon-princess-shape" },
-      { name: "Radiant", shapeicon: "ico-shp icon-radiant-shape" },
-      { name: "Asscher", shapeicon: "ico-shp icon-asscher-shape" }
-      // { name: "Others", shapeicon: "ico-shp icon-others-shape" },
+      { name: "Round", image: "/shapeimage/Round.svg" },
+      { name: "Oval", image: "/shapeimage/Oval.svg" },
+      { name: "Pear", image: "/shapeimage/Pear.svg" },
+      { name: "Marquise", image: "/shapeimage/Marquise.svg" },
+      { name: "Heart", image: "/shapeimage/Heart.svg" },
+      { name: "Emerald", image: "/shapeimage/Emerald.svg" },
+      { name: "Cushion", image: "/shapeimage/Cushion.svg" },
+      { name: "Princess", image: "/shapeimage/Princess.svg" },
+      { name: "Radiant", image: "/shapeimage/Radiant.svg" },
+      { name: "Asscher", image: "/shapeimage/Asscher.svg" },
     ],
-    Color: ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'FANCY INTENCE PINK', 'FANCY BROWN', 'BLUE', 'FANCY INTENSE BLUE', 'FANCY INTENCE YELLOW', 'FANCY VIIVD PINK'],
-    Clarity: ['FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'SI3', 'I1', 'I2', 'I3'],
-    Cut: ['ID', 'EX', 'VG'],
-    Lab: ['IGI', 'GIA', 'GSI', 'NONC', 'GCAL', 'NO_CERT'],
-    Polish: ['ID', 'EX', 'VG', 'GD', 'FR'],
+    Color: [
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "FANCY INTENCE PINK",
+      "FANCY BROWN",
+      "BLUE",
+      "FANCY INTENSE BLUE",
+      "FANCY INTENCE YELLOW",
+      "FANCY VIIVD PINK",
+    ],
+    Clarity: [
+      "FL",
+      "IF",
+      "VVS1",
+      "VVS2",
+      "VS1",
+      "VS2",
+      "SI1",
+      "SI2",
+      "SI3",
+      "I1",
+      "I2",
+      "I3",
+    ],
+    Cut: ["ID", "EX", "VG"],
+    Lab: ["IGI", "GIA", "GSI", "NONC", "GCAL", "NO_CERT"],
+    Polish: ["ID", "EX", "VG", "GD", "FR"],
     location: [],
-    Symm: ['EX', 'VG', 'GD', 'FR', 'G'],
+    Symm: ["EX", "VG", "GD", "FR", "G"],
     Flour: ["NON", "FNT", "MED", "SL", "VSL", "STG", "VST"],
   };
 
-  const storedData = localStorage.getItem('branches');
+  const storedData = localStorage.getItem("branches");
   const datas = JSON.parse(storedData);
-  
+
   // Populate the location category with branch names
-  const locations = datas?.map(branch => branch.FL_BRANCH_NAME);
-  
+  const locations = datas?.map((branch) => branch.FL_BRANCH_NAME);
+
   // Add the location category to categories
   categories.location = locations;
-
 
   const handleOthersClick = () => {
     setShowVVS2((prev) => !prev);
@@ -146,15 +173,13 @@ const Home = () => {
           searchState.Memo ||
           searchState.A ||
           searchState.Hold
-        )
+        ),
       );
     }
   }, [searchState]);
 
-
-
   useEffect(() => {
-    const storedOptions = localStorage.getItem('selectedOptions');
+    const storedOptions = localStorage.getItem("selectedOptions");
     if (storedOptions) {
       setSelectedOptions(JSON.parse(storedOptions));
     }
@@ -175,28 +200,25 @@ const Home = () => {
       const newSelected = { ...prev };
       if (!newSelected[category]) newSelected[category] = [];
       if (newSelected[category].includes(option)) {
-        newSelected[category] = newSelected[category].filter((item) => item !== option);
+        newSelected[category] = newSelected[category].filter(
+          (item) => item !== option,
+        );
       } else {
         newSelected[category] = [...newSelected[category], option];
-        
       }
       return newSelected;
     });
-    
   };
-
 
   useEffect(() => {
     let isMounted = true; // Track whether the component is still mounted
 
     const fetchData = async () => {
       try {
-        const response = await Axios.get('search/parmas?type=single');
+        const response = await Axios.get("search/parmas?type=single");
         if (isMounted) {
           setData(response.data.data); // Update state only if the component is still mounted
-          
         }
-        
       } catch (err) {
         if (isMounted) {
           setError("Failed to fetch data. Please try again."); // Set error state
@@ -213,7 +235,6 @@ const Home = () => {
     };
   }, []);
 
-
   // Handle advance search toggle
   const handleAdvanceSearchClick = () => {
     setIsAdvanceSearchOpen((prev) => !prev);
@@ -227,9 +248,7 @@ const Home = () => {
     }));
   };
 
-
   const handleSubmit = async () => {
-
     const payload = {
       CLARITY: selectedOptions.Clarity || [],
       COLOR: selectedOptions.Color || [],
@@ -242,11 +261,10 @@ const Home = () => {
       POLISH: selectedOptions.Polish || [],
       SHAPE: selectedOptions.SHAPES || [],
       SYMM: selectedOptions.Symm || [],
-      location: selectedOptions.location|| [],
+      location: selectedOptions.location || [],
       stoneCert: stoneId || "",
       FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
-
         FromTable_per: advanceSearchFields.tableFrom || "",
         ToTable_per: advanceSearchFields.tableTo || "",
 
@@ -263,32 +281,38 @@ const Home = () => {
     };
 
     const cleanPayload = Object.fromEntries(
-      Object.entries(payload).filter(([_, value]) => value !== undefined && value !== "" && !(Array.isArray(value) && value.length === 0))
+      Object.entries(payload).filter(
+        ([_, value]) =>
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0),
+      ),
     );
 
     const formData = {
       remark: remark,
-      data: cleanPayload
+      data: cleanPayload,
     };
 
     try {
-      const response = await Axios.post('mail/postdemand', JSON.stringify(formData));
+      const response = await Axios.post(
+        "mail/postdemand",
+        JSON.stringify(formData),
+      );
 
       if (response.status === 200) {
-        console.log('search seuccess', response.data)
+        console.log("search seuccess", response.data);
         setShowModal(false);
-        setRemark('');
+        setRemark("");
       } else {
-        console.log(data.message || 'failed');
+        console.log(data.message || "failed");
       }
     } catch (err) {
-      console.log('An error occurred. Please try again.', err);
+      console.log("An error occurred. Please try again.", err);
     }
-
   };
 
   const handlesearch = async () => {
-
     setIsLoading(true);
     const payload = {
       CLARITY: selectedOptions.Clarity || [],
@@ -306,7 +330,6 @@ const Home = () => {
       stoneCert: stoneId || "",
       FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
-
         FromTable_per: advanceSearchFields.tableFrom || "",
         ToTable_per: advanceSearchFields.tableTo || "",
 
@@ -323,13 +346,21 @@ const Home = () => {
     };
 
     const cleanPayload = Object.fromEntries(
-      Object.entries(payload).filter(([_, value]) => value !== undefined && value !== "" && !(Array.isArray(value) && value.length === 0))
+      Object.entries(payload).filter(
+        ([_, value]) =>
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0),
+      ),
     );
 
     setSearchState(cleanPayload);
 
     try {
-      const response = await Axios.post('/search/stoneUser', JSON.stringify(cleanPayload));
+      const response = await Axios.post(
+        "/search/stoneUser",
+        JSON.stringify(cleanPayload),
+      );
 
       if (response.status === 200) {
         // Update state here if necessary
@@ -339,297 +370,241 @@ const Home = () => {
         // Navigate to the new page
         history.push({
           pathname: `/tableshow`,
-          state: { searchResult: response.data.result, selectedOptions: selectedOptions }
+          state: {
+            searchResult: response.data.result,
+            selectedOptions: selectedOptions,
+          },
         });
         // window.location.reload()
       } else {
         setError(data.message);
-        setToastMessage(err.response.data.message)
+        setToastMessage(err.response.data.message);
         // setToastMessage('User not found.');
         setShowToast(true);
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
-    }
-    finally {
+      setError("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false); // Set loading to false after search completes or fails
     }
   };
 
-
   return (
     <>
-    <IonPage>
+      <IonPage>
         <Header />
-      {/* <IonHeader>
+        {/* <IonHeader>
         
       </IonHeader> */}
-      <IonContent>
-        <IonGrid style={{ marginBottom: "20px" }}>
-          <div style={{ marginTop: '20px' }}>
-            <h5 class="text-center mb-5 element">Polish Certified</h5>
-          </div>
-          <div style={{ display: "flex", justifyContent: "start", alignContent: "center", gap: "15px",padding:"20px 7px"}}>
-            <a onClick={() => history.push('/home')}>
-              <button className="sumbutton ">Polish Certified</button>
-            </a>
-            <a onClick={() => history.push('/polish')}>
-              <button type="button" class="sumbutton sumbutton-11">Polish Parcel</button>
-            </a>
-            {/* <a href='/jewel'>
-              <button type="button" class="sumbutton sumbutton-11">Jewelry</button>
-            </a> */}
-          </div>
-          <IonRow>
-            <IonCol size="12">
-              <div className="main-box main2">
-                <div className="checkbox-group">
-                  {categories.Shape.map((option) => (
-                    <span key={option.name}
-                      className={`checkbox-label ${selectedOptions.SHAPES?.includes(option.name.toUpperCase()) ? 'selected' : ''}`}
-                      onClick={() => handleCheckboxChange("SHAPES", option.name.toUpperCase())}>
-                      {option.name}
-                      <i className={option.shapeicon}></i>
-                    </span>
-                  ))}
-
+        <IonContent>
+          <IonGrid style={{ marginBottom: "20px" }}>
+            <div style={{ marginTop: "20px" }}>
+              <h5 class="text-center mb-5 element">Polish Certified</h5>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "start",
+                alignContent: "center",
+                gap: "15px",
+                padding: "20px 7px",
+              }}
+            >
+              <a onClick={() => history.push("/home")}>
+                <button className="sumbutton ">Polish Certified</button>
+              </a>
+              <a onClick={() => history.push("/polish")}>
+                <button type="button" class="sumbutton sumbutton-11">
+                  Polish Parcel
+                </button>
+              </a>
+              <a href="/jewel">
+                <button type="button" class="sumbutton sumbutton-11">
+                  Jewelry
+                </button>
+              </a>
+            </div>
+            <IonRow>
+              <IonCol size="12">
+                <div className="main-box main2">
                   <div className="checkbox-group">
-                    <span className="checkbox-label" onClick={handleOthersClick}>
-                      Others
-                      <i className="ico-shp icon-others-shape"></i>
-                    </span>
-                  </div>
-                  {showVVS2 && (
-                    <div className="checkbox-group">
-                      {data?.SHAPE?.map((option) => (
-                        <span key={option.name}
-                          className={`checkbox-label ${selectedOptions.SHAPES?.includes(option.name.toUpperCase()) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange("SHAPES", option.name.toUpperCase())}>
-                          {option.name}
-                          <i className={option.CLASS_NAME}></i>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </IonCol>
-          </IonRow>
+                    {categories.Shape.map((option) => (
+                      <span
+                        key={option.name}
+                        className={`checkbox-label ${
+                          selectedOptions.SHAPES?.includes(
+                            option.name.toUpperCase(),
+                          )
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleCheckboxChange(
+                            "SHAPES",
+                            option.name.toUpperCase(),
+                          )
+                        }
+                      >
+                        <img
+                          src={option.image}
+                          alt={option.name}
+                          width={45}
+                          height={45}
+                          className="shape-icon"
+                        />
 
-          <IonRow>
-            <IonCol size="12">
-              <div className="main-box">
-                <h5 style={{ textTransform: 'uppercase' }}>Carat</h5>
-                <IonRow>
-                  <IonCol size="6" sizeMd="6">
-                    <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                      type="number"
-                      class="form-control"
-                      name="CaratFrom"
-                      placeholder="Carat From"
-                      value={carat.from}
-                      onChange={(e) => setCarat({ ...carat, from: e.target.value })}
-                    />
-                  </IonCol>
-                  <IonCol size="6" sizeMd="6">
-                    <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                      type="number"
-                      class="form-control"
-                      name="CaratTo"
-                      placeholder="Carat To "
-                      value={carat.to}
-                      onChange={(e) => setCarat({ ...carat, to: e.target.value })}
-                    />
-                  </IonCol>
-                </IonRow>
-              </div>
-            </IonCol>
-          </IonRow>
-          {/* Stone ID Input */}
+                        <small className="shape-title">{option.name}</small>
+                      </span>
+                    ))}
 
-          <IonRow>
-            <IonCol size="12">
-              <div className="main-box">
-                <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Stone Id #/Cert #</h5>
-                <textarea
-                  style={{ width: '100%', borderRadius: '8px', background: '#fff8ef' }}
-                  className="forminput"
-                  placeholder="Enter Stone Id or Certificate Number"
-                  value={stoneId}
-                   onChange={(e) => setStoneId(e.target.value.trim())}
-                />
-              </div>
-            </IonCol>
-          </IonRow>
-
-
-          <IonRow>
-            <IonCol size="12">
-              <div className="main-box">
-                {["Color"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
                     <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
+                      <span
+                        className="checkbox-label"
+                        onClick={handleOthersClick}
+                      >
+                        <img
+                          src="/shapeimage/Others.svg"
+                          alt="Others"
+                          width={45}
+                          height={45}
+                          className="shape-icon"
+                        />
+                        <small className="shape-title">Others</small>
+                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-            <IonCol size="12">
-              <div className="main-box">
-                {["Clarity"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-
-            <IonCol size="12">
-              <div className="main-box">
-                {["Cut"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-            <IonCol size="12">
-              <div className="main-box">
-                {["Lab"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-            <IonCol size="12">
-              <div className="main-box">
-                {["Polish"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-            <IonCol size="12">
-              <div className="main-box">
-                <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>US$/CT</h5>
-                <IonRow>
-                  <IonCol size="6" sizeMd="6">
-                    <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                      type="number"
-                      placeholder="From"
-                      value={US$CT.from}
-                      onChange={(e) => setUS$CT({ ...US$CT, from: e.target.value })}
-                    />
-                  </IonCol>
-                  <IonCol size="6" sizeMd="6">
-                    <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                      type="number"
-                      placeholder="To"
-                      value={US$CT.to}
-                      onChange={(e) => setUS$CT({ ...US$CT, to: e.target.value })}
-                    />
-                  </IonCol>
-                </IonRow>
-              </div>
-            </IonCol>
-
-            <IonCol size="12">
-              <div className="main-box">
-                {["Symm"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-
-            <IonCol size="12">
-              <div className="main-box">
-                {["Flour"].map((category) => (
-                  <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                    <div className="checkbox-group">
-                      {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </IonCol>
-            <IonCol size="12">
-            <div className="main-box">
-                  {["location"]?.map((category) => (
-                    <div className="mainbox" key={category}>
-                      <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
+                    {showVVS2 && (
                       <div className="checkbox-group">
-                        {categories[category]?.map((option) => (
-                          <span key={option}
-                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? 'selected' : ''}`}
-                            onClick={() => handleCheckboxChange(category, option)}>
+                        {data?.SHAPE?.map((option) => (
+                          <span
+                            key={option.name}
+                            className={`checkbox-label ${
+                              selectedOptions.SHAPES?.includes(
+                                option.name.toUpperCase(),
+                              )
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              handleCheckboxChange(
+                                "SHAPES",
+                                option.name.toUpperCase(),
+                              )
+                            }
+                          >
+                            <img
+                              src={`/shapeimage/${option.name}.svg`}
+                              alt={option.name}
+                              width={45}
+                              height={45}
+                              className="shape-icon"
+                            />
+
+                            <small className="shape-title">{option.name}</small>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </IonCol>
+            </IonRow>
+
+            <IonRow>
+              <IonCol size="12">
+                <div className="main-box">
+                  <h5 style={{ textTransform: "uppercase" }}>Carat</h5>
+                  <IonRow>
+                    <IonCol size="6" sizeMd="6">
+                      <input
+                        style={{
+                          background: "#ffdeb300",
+                          color: "#000",
+                          width: "100%",
+                          marginBottom: "5px",
+                          borderRadius: "8px",
+                          border: "1px solid #4c3226",
+                        }}
+                        type="number"
+                        class="form-control"
+                        name="CaratFrom"
+                        placeholder="Carat From"
+                        value={carat.from}
+                        onChange={(e) =>
+                          setCarat({ ...carat, from: e.target.value })
+                        }
+                      />
+                    </IonCol>
+                    <IonCol size="6" sizeMd="6">
+                      <input
+                        style={{
+                          background: "#ffdeb300",
+                          color: "#000",
+                          width: "100%",
+                          marginBottom: "5px",
+                          borderRadius: "8px",
+                          border: "1px solid #4c3226",
+                        }}
+                        type="number"
+                        class="form-control"
+                        name="CaratTo"
+                        placeholder="Carat To "
+                        value={carat.to}
+                        onChange={(e) =>
+                          setCarat({ ...carat, to: e.target.value })
+                        }
+                      />
+                    </IonCol>
+                  </IonRow>
+                </div>
+              </IonCol>
+            </IonRow>
+            {/* Stone ID Input */}
+
+            <IonRow>
+              <IonCol size="12">
+                <div className="main-box">
+                  <h5
+                    style={{ textTransform: "uppercase", marginBottom: "10px" }}
+                  >
+                    Stone Id #/Cert #
+                  </h5>
+                  <textarea
+                    style={{
+                      width: "100%",
+                      borderRadius: "8px",
+                      background: "#fff8ef",
+                    }}
+                    className="forminput"
+                    placeholder="Enter Stone Id or Certificate Number"
+                    value={stoneId}
+                    onChange={(e) => setStoneId(e.target.value.trim())}
+                  />
+                </div>
+              </IonCol>
+            </IonRow>
+
+            <IonRow>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Color"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
                             {option}
                           </span>
                         ))}
@@ -637,125 +612,470 @@ const Home = () => {
                     </div>
                   ))}
                 </div>
-            </IonCol>
-          </IonRow>
+              </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Clarity"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
 
-          <IonRow>
-            {isAdvanceSearchOpen && (
-              <>
-                <IonCol size="12">
-                  <div className="main-box">
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Table %</h5>
-                    <IonRow>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="From"
-                          value={advanceSearchFields.tableFrom}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("tableFrom", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="To"
-                          value={advanceSearchFields.tableTo}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("tableTo", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                    </IonRow>
-                  </div>
-                </IonCol>
-                <IonCol size="12">
-                  <div className="main-box">
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Depth %</h5>
-                    <IonRow>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="From"
-                          value={advanceSearchFields.depthFrom}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("depthFrom", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="To"
-                          value={advanceSearchFields.depthTo}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("depthTo", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                    </IonRow>
-                  </div>
-                </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Cut"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Lab"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Polish"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  <h5
+                    style={{ textTransform: "uppercase", marginBottom: "10px" }}
+                  >
+                    US$/CT
+                  </h5>
+                  <IonRow>
+                    <IonCol size="6" sizeMd="6">
+                      <input
+                        style={{
+                          background: "#ffdeb300",
+                          color: "#000",
+                          width: "100%",
+                          marginBottom: "5px",
+                          borderRadius: "8px",
+                          border: "1px solid #4c3226",
+                        }}
+                        type="number"
+                        placeholder="From"
+                        value={US$CT.from}
+                        onChange={(e) =>
+                          setUS$CT({ ...US$CT, from: e.target.value })
+                        }
+                      />
+                    </IonCol>
+                    <IonCol size="6" sizeMd="6">
+                      <input
+                        style={{
+                          background: "#ffdeb300",
+                          color: "#000",
+                          width: "100%",
+                          marginBottom: "5px",
+                          borderRadius: "8px",
+                          border: "1px solid #4c3226",
+                        }}
+                        type="number"
+                        placeholder="To"
+                        value={US$CT.to}
+                        onChange={(e) =>
+                          setUS$CT({ ...US$CT, to: e.target.value })
+                        }
+                      />
+                    </IonCol>
+                  </IonRow>
+                </div>
+              </IonCol>
 
-                <IonCol size="12">
-                  <div className="main-box">
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Ratio</h5>
-                    <IonRow>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="From"
-                          value={advanceSearchFields.ratioFrom}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("ratioFrom", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                      <IonCol size="12" sizeMd="6">
-                        <input
-                          style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
-                          type="number"
-                          placeholder="To"
-                          value={advanceSearchFields.ratioTo}
-                          onChange={(e) =>
-                            handleAdvanceSearchInputChange("ratioTo", e.target.value)
-                          }
-                        />
-                      </IonCol>
-                    </IonRow>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Symm"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
 
-                  </div>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["Flour"].map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category].map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
+              <IonCol size="12">
+                <div className="main-box">
+                  {["location"]?.map((category) => (
+                    <div className="mainbox" key={category}>
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        {category}
+                      </h5>
+                      <div className="checkbox-group">
+                        {categories[category]?.map((option) => (
+                          <span
+                            key={option}
+                            className={`checkbox-label ${selectedOptions[category]?.includes(option) ? "selected" : ""}`}
+                            onClick={() =>
+                              handleCheckboxChange(category, option)
+                            }
+                          >
+                            {option}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </IonCol>
+            </IonRow>
 
-                </IonCol>
+            <IonRow>
+              {isAdvanceSearchOpen && (
+                <>
+                  <IonCol size="12">
+                    <div className="main-box">
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Table %
+                      </h5>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="From"
+                            value={advanceSearchFields.tableFrom}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "tableFrom",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="To"
+                            value={advanceSearchFields.tableTo}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "tableTo",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                      </IonRow>
+                    </div>
+                  </IonCol>
+                  <IonCol size="12">
+                    <div className="main-box">
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Depth %
+                      </h5>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="From"
+                            value={advanceSearchFields.depthFrom}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "depthFrom",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="To"
+                            value={advanceSearchFields.depthTo}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "depthTo",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                      </IonRow>
+                    </div>
+                  </IonCol>
 
-                <IonCol size="12">
-                  <div className="main-box">
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Status</h5>
-                    <IonRow>
-                      <IonCol size="12" sizeMd="6">
-                        <div className="" style={{ display: 'flex' }} >
-                          <label style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={advanceSearchFields.available}
-                              onChange={(e) =>
-                                handleAdvanceSearchInputChange(
-                                  "available",
-                                  e.target.checked
-                                )
-                              }
-                              style={{ width: '23px' }}
-                            />
-                            Available
-                          </label>
-                        </div>
-                        {/* <div className=""  >
+                  <IonCol size="12">
+                    <div className="main-box">
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Ratio
+                      </h5>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="From"
+                            value={advanceSearchFields.ratioFrom}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "ratioFrom",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                        <IonCol size="12" sizeMd="6">
+                          <input
+                            style={{
+                              background: "#ffdeb300",
+                              color: "#000",
+                              width: "100%",
+                              marginBottom: "5px",
+                              borderRadius: "8px",
+                              border: "1px solid #4c3226",
+                            }}
+                            type="number"
+                            placeholder="To"
+                            value={advanceSearchFields.ratioTo}
+                            onChange={(e) =>
+                              handleAdvanceSearchInputChange(
+                                "ratioTo",
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </IonCol>
+                      </IonRow>
+                    </div>
+                  </IonCol>
+
+                  <IonCol size="12">
+                    <div className="main-box">
+                      <h5
+                        style={{
+                          textTransform: "uppercase",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        Status
+                      </h5>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <div className="" style={{ display: "flex" }}>
+                            <label
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                alignItems: "center",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={advanceSearchFields.available}
+                                onChange={(e) =>
+                                  handleAdvanceSearchInputChange(
+                                    "available",
+                                    e.target.checked,
+                                  )
+                                }
+                                style={{ height: "2px", width: "2px" }}
+                              />
+                              Available
+                            </label>
+                          </div>
+                          {/* <div className=""  >
                           <label style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <input
                               type="checkbox"
@@ -781,76 +1101,116 @@ const Home = () => {
                             Hold
                           </label>
                         </div> */}
-                      </IonCol>
+                        </IonCol>
+                      </IonRow>
+                    </div>
+                  </IonCol>
+                </>
+              )}
+            </IonRow>
+            {/* Buttons */}
+            <IonRow>
+              <IonCol
+                size="12"
+                className="ion-text-center"
+                style={{ marginTop: "10px" }}
+              >
+                <div className="mainbtn">
+                  <button
+                    className="sumbutton"
+                    onClick={handlesearch}
+                    disabled={isLoading}
+                  >
+                    Search
+                  </button>
 
-                    </IonRow>
-                  </div>
-                </IonCol>
-              </>
-            )}
-          </IonRow>
-          {/* Buttons */}
-          <IonRow>
-            <IonCol size="12" className="ion-text-center" style={{marginTop:'10px'}}>
-              <div className="mainbtn">
-                <button className="sumbutton" onClick={handlesearch} disabled={isLoading}>
-                Search
-              </button>
+                  <span onClick={handleAdvanceSearchClick}>
+                    <button className="sumbutton">
+                      {" "}
+                      {isAdvanceSearchOpen
+                        ? "Close Advance Search"
+                        : "Advance Search"}
+                    </button>
+                  </span>
+                  <button className="sumbutton" onClick={openModal}>
+                    Post Your Demand
+                  </button>
+                </div>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
 
-                <span onClick={handleAdvanceSearchClick}>
-                  <button className="sumbutton">  {isAdvanceSearchOpen ? "Close Advance Search" : "Advance Search"}</button>
-                </span>
-                <button className="sumbutton" onClick={openModal}>Post Your Demand</button>
-              </div>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+          <IonLoading
+            isOpen={isLoading}
+            message="Searching..."
+            spinner="crescent"
+            onDidDismiss={() => setIsLoading(false)}
+          />
 
-        <IonLoading
-          isOpen={isLoading}
-          message="Searching..."
-          spinner="crescent"
-          onDidDismiss={() => setIsLoading(false)}
-        />
+          <IonToast
+            isOpen={showToast}
+            onDidDismiss={() => setShowToast(false)}
+            message={toastMessage}
+            duration={2000}
+          />
 
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={2000}
-        />
-
-        {showModal && (
-          <div className="modalimage1">
-            <div className="modalimage2">
-              <div type='button' onClick={closeModal} style={{ position: "absolute", right: "20px", top: "20px", zIndex: "999" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="bi bi-x-lg" viewBox="0 0 16 16">
-                  <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
-                </svg>
-              </div>
-              <h2 >Post Your Demand</h2>
-              <div >
-                <label>
-                  Remark
-                  <input
-                    style={{ background: '#ffdeb300', padding: '10px', color: '#000', width: '100%', marginBottom: '15px', borderRadius: '8px', border: '1px solid #4c3226', marginTop: '15px' }}
-                    type="text"
-                    placeholder="ADD Remark"
-                    className="input-box"
-                    value={remark}
-                    onChange={(e) => setRemark(e.target.value)}
-                  />
-                </label>
-              </div>
-              <div className="modal-footer">
-                <button onClick={handleSubmit} className="submit-btn">Submit</button>
+          {showModal && (
+            <div className="modalimage1">
+              <div className="modalimage2">
+                <div
+                  type="button"
+                  onClick={closeModal}
+                  style={{
+                    position: "absolute",
+                    right: "20px",
+                    top: "20px",
+                    zIndex: "999",
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    class="bi bi-x-lg"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
+                  </svg>
+                </div>
+                <h2>Post Your Demand</h2>
+                <div>
+                  <label>
+                    Remark
+                    <input
+                      style={{
+                        background: "#ffdeb300",
+                        padding: "10px",
+                        color: "#000",
+                        width: "100%",
+                        marginBottom: "15px",
+                        borderRadius: "8px",
+                        border: "1px solid #4c3226",
+                        marginTop: "15px",
+                      }}
+                      type="text"
+                      placeholder="ADD Remark"
+                      className="input-box"
+                      value={remark}
+                      onChange={(e) => setRemark(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="modal-footer">
+                  <button onClick={handleSubmit} className="submit-btn">
+                    Submit
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </IonContent>
-      <Bottom />
-    </IonPage>
+          )}
+        </IonContent>
+        <Bottom />
+      </IonPage>
     </>
   );
 };

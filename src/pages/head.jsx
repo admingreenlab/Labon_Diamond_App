@@ -118,20 +118,8 @@ function apps() {
         <>
             <IonHeader >
                 <IonToolbar >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1px 0', marginTop: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <IonButtons slot="start">
-                                <IonMenuButton fill='clear' >
-                                    <Ion-Icon slot="start" src="img/align-left.svg" style={{ height: '100%', marginLeft: '10px', marginRight: '10px' }}></Ion-Icon>
-                                </IonMenuButton>
-                            </IonButtons>
-                            <IonImg
-                                slot="start"
-                                src="img/logo.svg"
-                                style={{ height: '24px', margin: '0', marginLeft: '0px' }}
-                            ></IonImg>
-                        </div>
-                        <div style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1px 0', marginTop: '0px' }}>
+                                 <div style={{ position: 'relative' }}>
                             <button onClick={toggleDropdown} style={{ background: 'none', border: 'none', cursor: 'pointer', marginRight: '10px' }}>
                                 <IonImg
                                     slot="start"
@@ -139,7 +127,22 @@ function apps() {
                                     style={{ height: '30px', margin: '0' }}
                                 ></IonImg>
                             </button>
+                       
                         </div>
+                                        <IonImg
+                                slot="start"
+                                src="img/logo.svg"
+                                style={{ height: '24px', margin: '0', marginLeft: '0px' }}
+                            ></IonImg>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <IonButtons slot="start">
+                                <IonMenuButton fill='clear' >
+                                    <Ion-Icon slot="start" src="img/align-left.svg" style={{ height: '100%', marginLeft: '10px', marginRight: '10px' }}></Ion-Icon>
+                                </IonMenuButton>
+                            </IonButtons>
+                 
+                        </div>
+               
                     </div>
                 </IonToolbar>
                  

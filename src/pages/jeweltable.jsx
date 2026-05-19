@@ -57,12 +57,13 @@ import { useHistory } from "react-router-dom";
 import Bottom from "./bottomtab";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
+import { Share } from "@capacitor/share";
 // import * as XLSX from 'xlsx';
 import XLSX from "xlsx-js-style";
 import { BasketContext } from "../context/BasketContext";
 import { WatchlistContext } from "../context/Wishlistcontext";
 
-function Polishtable() {
+function Jeweltable() {
   const history = useHistory();
   const [selectedRows, setSelectedRows] = useState([]);
   const [sortBy, setSortBy] = useState("");
@@ -95,40 +96,18 @@ function Polishtable() {
   const handleRowSelect = (item) => {
     setSelectedRows((prevSelected) => {
       const isSelected = prevSelected.some(
-        (selected) => selected.FL_SUB_LOT === item.FL_SUB_LOT,
+        (selected) => selected.FL_ITEM_CODE === item.FL_ITEM_CODE,
       );
       if (isSelected) {
+        // Remove the item if already selected
         return prevSelected.filter(
-          (selected) => selected.FL_SUB_LOT !== item.FL_SUB_LOT,
+          (selected) => selected.FL_ITEM_CODE !== item.FL_ITEM_CODE,
         );
       } else {
+        // Add the complete item if not selected
         return [...prevSelected, item];
       }
     });
-  };
-
-  const sortfilter = (col) => {
-    const sortedValue = [...data].sort((a, b) => {
-      const aValue = a[col] ? a[col].toString() : "";
-      const bValue = b[col] ? b[col].toString() : "";
-
-      if (sortOrder === "asc") {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-    setData(sortedValue);
-  };
-
-  const handleSort = (col) => {
-    if (sortBy === col) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(col);
-      setSortOrder("asc");
-    }
-    sortfilter(col);
   };
 
   const indexOfLastRow = currentPage * rowsPerPage;
@@ -160,34 +139,15 @@ function Polishtable() {
     setCurrentPage(page);
   };
 
-  const totals = {
-    CARATS: data?.reduce((sum, row) => sum + row.CARATS, 0),
-    ASK_DISC: data?.reduce((sum, row) => sum + row.ASK_DISC / data.length, 0),
-    // pricects: data?.reduce((sum, row) => sum + (row.RAP_PRICE * (100 - Number(row.ASK_DISC)) / 100), 0),
-    pricects:
-      data?.length > 0
-        ? data?.reduce(
-            (sum, row) =>
-              sum +
-              ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
-                row.CARATS,
-            0,
-          ) / data?.reduce((sum, row) => sum + row.CARATS, 0)
-        : 0,
-    amount: data?.reduce(
-      (sum, row) =>
-        sum +
-        ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
-      0,
-    ),
-    // {(item.RAP_PRICE * (100 - Number(item.ASK_DISC)) / 100)}
-    // {(item.RAP_PRICE * (100 - Number(item.ASK_DISC)) / 100) * item.CARATS}
-  };
-
   const handleaddwatchlist = async () => {
     if (selectedRows.length < 1) {
       setToastMessage("Please select jewelry");
       setShowToast(true);
+      return;
+    }
+
+    if (selectedRows.length > 500) {
+      alert("You can add only 500 jewelry items at one time");
       return;
     }
 
@@ -199,10 +159,10 @@ function Polishtable() {
 
       const response = await Axios.post("user/watchlist/add", {
         lotIds: selectedRows.map((row) => ({
-          FL_SUB_LOT: row.FL_SUB_LOT,
+          FL_SUB_LOT: row.FL_ITEM_CODE,
           FL_BRID: row.FL_BRID,
         })),
-        inventoryType: "POLISH-PARCEL",
+        inventoryType: "JEWELRY",
         coid: FL_COID,
       });
 
@@ -227,334 +187,154 @@ function Polishtable() {
 
   const handleaddBasket = async () => {
     if (selectedRows.length === 0) {
-      window.alert("Please select stone to add Basket.");
+      setToastMessage("Please select at least one item");
+      setShowToast(true);
       return;
     }
+
     if (selectedRows.length > 500) {
-      window.alert("You can add a maximum of 500 stones to the Add to Basket.");
+      alert("You can add only 500 jewelry items at one time");
       return;
     }
-    setIsLoadingAll(true);
+
     try {
-      const response = await Axios.post("user/userbasket", {
+      const payload = {
         type: "I",
+        stype: "JEWELRY",
         stone_id: selectedRows.map((row) => ({
-          stone: row.FL_SUB_LOT,
+          stone: row.FL_ITEM_CODE,
           branch: row.FL_BRID,
         })),
-        stype: "POLISH-PARCEL",
-      });
-      if (response.status === 200) {
-        // const eventBus = getEventBus();
-        setToastMessage("Stone added to basket");
+      };
+
+      const response = await Axios.post("user/userbasket", payload);
+
+      if (response.data?.status === "success") {
+        setToastMessage(
+          response.data?.message || "Items added to basket successfully",
+        );
+
         setShowToast(true);
-        // eventBus.emit("basketUpdated");
-        // window.alert('Added to basket')
+
         setSelectedRows([]);
       }
       await fetchDatas();
     } catch (error) {
-      console.error("error to handle basket", error);
-      setToastMessage("selected Stone Id ");
-      // setToastMessage('User not found.');
-      setShowToast(true);
-    } finally {
-      setIsLoadingAll(false);
-    }
-  };
+      console.error("Error adding basket:", error);
 
-  const handleExportSelectedToExcel = async () => {
-    if (selectedRows.length === 0) {
-      window.alert("Please select stones to export.");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      // console.log('selectedRows', selectedRows)
-      const payload = {
-        stoneCert: selectedRows?.map((row) => row.STONE).join(" "), // Converts the array of STONE IDs into a space-separated string
-      };
-
-      const response = await Axios.post(
-        "/search/stoneUser?type=excel",
-        payload,
+      setToastMessage(
+        error?.response?.data?.message || "Failed to add items to basket",
       );
 
-      if (response.data.status === "success") {
-        window.open(`${baseURL}exports/${response.data.fileName}`);
-        setToastMessage(response?.data?.status);
-        setShowToast(true);
-        // setSelectedRows([]);
-      }
-    } catch (error) {
-      console.log(error);
-      setToastMessage(error.response.data);
-      // setToastMessage('User not found.');
       setShowToast(true);
-    } finally {
-      setIsLoading(false); // Set loading to false after search completes or fails
     }
   };
 
-  const basketredireck = async () => {
-    console.log("Redirecting with selected options:", selectedOptionss);
-    history.push({
-      pathname: `/polish`,
-      state: { selectedOptionss: selectedOptionss },
-    });
-  };
+  const handleExportExcel = () => {
+    const exportData = selectedRows.length > 0 ? selectedRows : data;
 
-  const transformData = (data) => {
-    return data?.map((item) => ({
-      "LOT NO": item.FL_SUB_LOT,
-      Type: item.FL_TYPE,
-      Carats: item.FL_CARATS,
-      Clarity: item.FL_CLARITY,
-      Color: item.FL_COLOR,
-      "Co ID": item.FL_COID,
-      Height: item.FL_HIGHT,
-      Length: item.FL_LENGTH,
-      Main_LOT: item.FL_MAIN_LOT,
-      Shape: item.FL_SHAPE_NAME,
-      "MM Size": item.FL_SIZE,
-      Width: item.FL_WIDTH,
-      Location: item.FL_BRID,
+    // Prepare JSON data
+    const excelData = exportData.map((item) => ({
+      Status: item.FL_STATUS || "-",
+      Category: item.FL_CATGORY || "-",
+      Location: item.FL_BRID || "-",
+      "Style Code": item.FL_STYLE_CODE || "-",
+      "Item Code": item.FL_ITEM_CODE || "-",
+      Size: item.FL_SIZE || "-",
+      Quality: item.FL_QUALITY || "-",
+      "Gross WT": item.FL_GROSS_WT || "-",
+      "Net WT": item.FL_NET_WT || "-",
+      "Diamond PCS": item.FL_DIAM_PCS || "-",
+      "Diamond CTS": item.FL_DIAM_CTS || "-",
     }));
-  };
 
-  const handleDownload = async () => {
-    if (selectedRows.length === 0) {
-      alert("Please select stones to export.");
-      return;
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Column widths
+    worksheet["!cols"] = [
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+    ];
+
+    // Header Styling
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = XLSX.utils.encode_cell({ r: 0, c: C });
+
+      if (!worksheet[address]) continue;
+
+      worksheet[address].s = {
+        font: {
+          bold: true,
+          color: { rgb: "FFFFFF" },
+        },
+        fill: {
+          fgColor: { rgb: "4F81BD" },
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+        },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } },
+        },
+      };
     }
 
-    const exportData = selectedRows.length > 0 ? selectedRows : paginatedData;
+    // Body Styling
+    for (let R = 1; R <= range.e.r; ++R) {
+      for (let C = 0; C <= range.e.c; ++C) {
+        const address = XLSX.utils.encode_cell({ r: R, c: C });
 
-    const totalCarats = exportData.reduce(
-      (sum, item) => sum + parseFloat(item.FL_CARATS || 0),
-      0,
-    );
-    const totalLotCount = exportData.length;
+        if (!worksheet[address]) continue;
 
-    const headers = [
-      "Type",
-      "Location",
-      "In Stock",
-      "LOT NO",
-      "Carats",
-      "Clarity",
-      "CO ID",
-      "Color",
-      "Height",
-      "Length",
-      "Main_LOT",
-      "Shape",
-      "MM Size",
-      "Width",
-      "ASK AMT",
-    ];
-
-    const totalRow = new Array(headers.length).fill("");
-    totalRow[2] = {
-      v: "Total LOT NO:",
-      s: { font: { bold: true } },
-    };
-    totalRow[3] = {
-      v: `${totalLotCount}`,
-      s: { font: { bold: true } },
-    };
-    totalRow[4] = {
-      v: "Total Carats:",
-      s: { font: { bold: true } },
-    };
-    totalRow[5] = {
-      v: `${totalCarats.toFixed(2)}`,
-      s: { font: { bold: true } },
-    };
-
-    const headerRow = headers;
-
-    const dataRows = exportData.map((item) => [
-      item.FL_TYPE,
-      item.FL_BRID,
-      "A",
-      item.FL_SUB_LOT,
-      item.FL_CARATS,
-      item.FL_CLARITY,
-      item.FL_COID,
-      item.FL_COLOR,
-      item.FL_HIGHT,
-      item.FL_LENGTH,
-      item.FL_MAIN_LOT,
-      item.FL_SHAPE_NAME,
-      item.FL_SIZE,
-      item.FL_WIDTH,
-      item.FL_ASK_AMT,
-    ]);
-
-    // Add a title row above the header, merged across columns A to G (0-6)
-    const titleRow = [
-      {
-        v: "Labon Diamonds LLC",
-        s: {
-          font: {
-            bold: true,
-            sz: 15, // Set font size to 15px
-          },
+        worksheet[address].s = {
           alignment: {
             horizontal: "center",
             vertical: "center",
           },
-          // Merge title across columns A to G (0-6)
-        },
-      },
-    ];
-
-    // Add an empty row to create space below the title row
-    const emptyRow = new Array(headers.length).fill(""); // Empty row with the same number of columns as the header
-
-    const finalData = [
-      titleRow, // Add title row
-      emptyRow, // Add an empty row below the title
-      totalRow, // Use combined total row
-      headerRow,
-      ...dataRows,
-    ];
-
-    const worksheet = XLSX.utils.aoa_to_sheet(finalData);
-
-    // Merge cells for the title to span from A1 to G1 (columns 0 to 6)
-    worksheet["!merges"] = [
-      {
-        s: { r: 0, c: 0 }, // Start cell (A1)
-        e: { r: 0, c: 6 }, // End cell (G1)
-      },
-    ];
-
-    // Style header row (row 2 = index 1, because row 1 is the title row)
-    for (let col = 0; col < headers.length; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 3, c: col }); // header row is now row 2 (index 1)
-      if (worksheet[cellAddress]) {
-        worksheet[cellAddress].s = {
-          fill: {
-            patternType: "solid",
-            fgColor: { rgb: "C29958" },
-          },
-          font: {
-            bold: true,
-            color: { rgb: "000000" },
-          },
-          alignment: {
-            horizontal: "center",
-            vertical: "center",
+          border: {
+            top: { style: "thin", color: { rgb: "D9D9D9" } },
+            bottom: { style: "thin", color: { rgb: "D9D9D9" } },
+            left: { style: "thin", color: { rgb: "D9D9D9" } },
+            right: { style: "thin", color: { rgb: "D9D9D9" } },
           },
         };
       }
     }
 
-    worksheet["!autofilter"] = {
-      ref: `A4:${String.fromCharCode(64 + headers.length)}4`,
-    }; // Autofilter should apply to header row
-
+    // Create workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    const wbout = XLSX.write(workbook, { type: "base64", bookType: "xlsx" });
-    const fileName = `ExportedData_${Date.now()}.xlsx`;
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Jewelry Data");
 
-    try {
-      const result = await Filesystem.writeFile({
-        path: fileName,
-        data: wbout,
-        directory: Directory.Documents,
-        encoding: Encoding.BASE64,
-      });
-
-      console.log("File saved at:", result.uri);
-      const uri = result.uri; // Use directly
-
-      alert(`File saved as: ${fileName}`);
-
-      if (Capacitor.getPlatform() === "android") {
-        await Share.share({
-          title: "Exported Excel File",
-          text: "Here is your exported Excel file.",
-          url: uri,
-          dialogTitle: "Share your file",
-        });
-      }
-
-      setToastMessage("✅ File exported successfully!");
-      setShowToast(true);
-    } catch (error) {
-      console.error("Error saving or sharing file:", error);
-
-      setShowToast(true);
-    }
+    // Download file
+    XLSX.writeFile(
+      workbook,
+      selectedRows.length > 0 ? "Selected_Jewelry.xlsx" : "All_Jewelry.xlsx",
+    );
   };
 
-  // Function to convert image to Base64 (web platform)
-  const convertImageToBase64 = (imagePath) => {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      image.src = imagePath;
-
-      image.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(image, 0, 0);
-        const base64String = canvas.toDataURL("image/png"); // Convert to base64
-        resolve(base64String);
-      };
-
-      image.onerror = (error) => reject(error);
+  const basketredireck = async () => {
+    console.log("Redirecting with selected options:", selectedOptionss);
+    history.push({
+      pathname: `/jewel`,
+      state: { selectedOptionss: selectedOptionss },
     });
-  };
-
-  // Function to load image from local filesystem (mobile platform)
-  const loadImageFromFilesystem = async () => {
-    const path = "assets/img/logo11.png"; // Ensure this path is correct for your mobile assets
-    const file = await Filesystem.readFile({
-      path: path,
-      directory: Directory.Resources,
-      encoding: Encoding.UTF8,
-    });
-    return `data:image/png;base64,${file.data}`;
-  };
-
-  const handleExportAllToExcel = async () => {
-    if (data.length === 0) {
-      window.alert("No data available to export.");
-      return;
-    }
-
-    try {
-      setIsLoadings(true);
-      const payload = {
-        stoneCert: "",
-        ...searchState, // Pass the entire searchState object here
-      };
-      const response = await Axios.post(
-        "/search/stoneUser?type=excel",
-        payload,
-      );
-
-      if (response.data.status === "success") {
-        window.open(`${baseURL}exports/${response.data.fileName}`);
-        setToastMessage(response?.data?.status);
-        setShowToast(true);
-      }
-    } catch (error) {
-      console.log(error);
-      setToastMessage(error.response.data);
-      // setToastMessage('User not found.');
-      setShowToast(true);
-    } finally {
-      setIsLoadings(false); // Set loading to false after search completes or fails
-    }
   };
   const [showDropdown, setShowDropdown] = useState(false);
   const handleClick = () => {
@@ -573,7 +353,7 @@ function Polishtable() {
           }}
         >
           <div style={{ marginTop: "20px" }}>
-            <h5 class="text-center mb-5 element">Polish Parcel Table </h5>
+            <h5 class="text-center mb-5 element">Jewel Table </h5>
           </div>
           <div className="myquotations" style={{ marginBottom: "100px" }}>
             <IonGrid>
@@ -606,7 +386,7 @@ function Polishtable() {
 
                       <button
                         className="sumbuttontable"
-                        onClick={handleDownload}
+                        onClick={handleExportExcel}
                         disabled={isLoading}
                       >
                         {isLoading ? "Download..." : "Export to Excel"}
@@ -815,37 +595,29 @@ function Polishtable() {
                                 <input
                                   type="checkbox"
                                   onChange={() => {
-                                    if (selectedRows?.length === data?.length) {
+                                    if (selectedRows.length === data.length) {
                                       setSelectedRows([]);
                                     } else {
-                                      setSelectedRows(
-                                        data?.map((item) => item),
-                                      );
+                                      setSelectedRows(data.map((item) => item));
                                     }
                                   }}
-                                  checked={
-                                    selectedRows?.length === data?.length
-                                  }
+                                  checked={selectedRows.length === data.length}
                                 />
                                 <div className="checkbox__checkmark"></div>
                               </label>
                             </th>
                             {/* <th>SrNo</th> */}
-                            <th>Type</th>
+                            <th>Status</th>
                             <th>Location</th>
-                            <th>In Stock</th>
-                            <th>LOT NO</th>
-                            <th>Carats</th>
-                            <th>Clarity</th>
-                            <th>CO ID</th>
-                            <th>Color</th>
-                            <th>Height</th>
-                            <th>Length</th>
-                            <th>Main_LOT</th>
-                            <th>Shape</th>
-                            <th>MM Size</th>
-                            <th>Width</th>
-                            <th>ASK AMT</th>
+                            <th>Style Code</th>
+                            <th>Item Code</th>
+                            <th>Size</th>
+                            <th>Quality</th>
+                            <th>Gross WT</th>
+                            <th>Net WT</th>
+                            <th>Diamond PCS</th>
+                            <th>Diamond CTS</th>
+                            <th>Image</th>
                           </tr>
                         </thead>
                         <tbody className="tablecss">
@@ -860,10 +632,10 @@ function Polishtable() {
                                     <input
                                       style={{ maxWidth: "30px" }}
                                       type="checkbox"
-                                      checked={selectedRows?.some(
+                                      checked={selectedRows.some(
                                         (selected) =>
-                                          selected?.FL_SUB_LOT ===
-                                          item?.FL_SUB_LOT,
+                                          selected.FL_ITEM_CODE ===
+                                          item.FL_ITEM_CODE,
                                       )}
                                       onChange={() => handleRowSelect(item)}
                                     />
@@ -871,21 +643,31 @@ function Polishtable() {
                                   </label>
                                 </td>
 
-                                <td>{item.FL_TYPE}</td>
+                                <td>{item.FL_STATUS}</td>
                                 <td>{item.FL_BRID}</td>
-                                <td>A</td>
-                                <td>{item.FL_SUB_LOT}</td>
-                                <td>{item.FL_CARATS}</td>
-                                <td>{item.FL_CLARITY}</td>
-                                <td>{item.FL_COID}</td>
-                                <td>{item.FL_COLOR}</td>
-                                <td>{item.FL_HIGHT}</td>
-                                <td>{item.FL_LENGTH}</td>
-                                <td>{item.FL_MAIN_LOT}</td>
-                                <td>{item.FL_SHAPE_NAME}</td>
-                                <td>{item.FL_SIZE}</td>
-                                <td>{item.FL_WIDTH}</td>
-                                <td>{item.FL_ASK_AMT}</td>
+                                <td>{item.FL_STYLE_CODE}</td>
+                                <td>{item.FL_ITEM_CODE}</td>
+                                <td>{item.FL_SIZE || "-"}</td>
+                                <td>{item.FL_QUALITY}</td>
+                                <td>{item.FL_GROSS_WT}</td>
+                                <td>{item.FL_NET_WT}</td>
+                                <td>{item.FL_DIAM_PCS}</td>
+                                <td>{item.FL_DIAM_CTS}</td>
+                                <td>
+                                  <span
+                                    style={{
+                                      color: "blue",
+                                      cursor: "pointer",
+                                      textDecoration: "underline",
+                                      fontSize: "15px",
+                                    }}
+                                    onClick={() =>
+                                      window.open(item.FL_IMAGE_PATH, "_blank")
+                                    }
+                                  >
+                                    Image
+                                  </span>
+                                </td>
                               </tr>
                             ))
                           ) : (
@@ -937,4 +719,4 @@ function Polishtable() {
     </>
   );
 }
-export default Polishtable;
+export default Jeweltable;

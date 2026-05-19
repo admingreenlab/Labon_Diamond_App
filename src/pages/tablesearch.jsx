@@ -26,7 +26,7 @@ import {
   IonButtons,
   IonToast,
   IonSpinner,
-  IonLoading
+  IonLoading,
 } from "@ionic/react";
 import { IonCol, IonGrid, IonRow, IonTabButton } from "@ionic/react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -91,7 +91,7 @@ function Tablesearch() {
   const handleRowSelect = (item) => {
     setSelectedRows((prevSelected) => {
       const isSelected = prevSelected.some(
-        (selected) => selected.STONE === item.STONE
+        (selected) => selected.STONE === item.STONE,
       );
       if (isSelected) {
         return prevSelected.filter((selected) => selected.STONE !== item.STONE);
@@ -146,7 +146,7 @@ function Tablesearch() {
 
     return Array.from(
       { length: endPage - startPage + 1 },
-      (_, i) => startPage + i
+      (_, i) => startPage + i,
     );
   };
 
@@ -165,55 +165,53 @@ function Tablesearch() {
               sum +
               ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
                 row.CARATS,
-            0
+            0,
           ) / data?.reduce((sum, row) => sum + row.CARATS, 0)
         : 0,
     amount: data?.reduce(
       (sum, row) =>
         sum +
         ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
-      0
+      0,
     ),
     // {(item.RAP_PRICE * (100 - Number(item.ASK_DISC)) / 100)}
     // {(item.RAP_PRICE * (100 - Number(item.ASK_DISC)) / 100) * item.CARATS}
   };
 
   const handleaddwatchlist = async () => {
-  if (selectedRows.length < 1) {
-    window.alert("Please select stone to add watchlist");
-    return;
-  }
-  if (selectedRows.length > 500) {
-    window.alert("You can add a maximum of 500 stones to the watchlist.");
-    return;
-  }
-
-  setIsLoadingAll(true);
-  const users = localStorage.getItem("user");
-  const FL_COID = JSON.parse(users).FL_COID;
-
-  try {
-    const response = await Axios.post("user/watchlist/add", {
-      lotIds: selectedRows.map((row) => row.STONE),
-      inventoryType: "POLISH-SINGLE",
-      coid: FL_COID,
-    });
-
-    if (response.status === 200) {
-      setToastMessage(response?.data?.message);
-      setShowToast(true);
-      setSelectedRows([]);
+    if (selectedRows.length < 1) {
+      window.alert("Please select stone to add watchlist");
+      return;
     }
-    await fetchWatchlistts();
-  } catch (error) {
-    setToastMessage(error?.response?.data?.message);
-    setShowToast(true);
-  } 
-  finally {
-    setIsLoadingAll(false);
-  }
-};
+    if (selectedRows.length > 500) {
+      window.alert("You can add a maximum of 500 stones to the watchlist.");
+      return;
+    }
 
+    setIsLoadingAll(true);
+    const users = localStorage.getItem("user");
+    const FL_COID = JSON.parse(users).FL_COID;
+
+    try {
+      const response = await Axios.post("user/watchlist/add", {
+        lotIds: selectedRows.map((row) => row.STONE),
+        inventoryType: "POLISH-SINGLE",
+        coid: FL_COID,
+      });
+
+      if (response.status === 200) {
+        setToastMessage(response?.data?.message);
+        setShowToast(true);
+        setSelectedRows([]);
+      }
+      await fetchWatchlistts();
+    } catch (error) {
+      setToastMessage(error?.response?.data?.message);
+      setShowToast(true);
+    } finally {
+      setIsLoadingAll(false);
+    }
+  };
 
   const handleaddBasket = async () => {
     if (selectedRows.length === 0) {
@@ -245,10 +243,9 @@ function Tablesearch() {
       // setToastMessage("Please select stone ID")
       // // setToastMessage('User not found.');
       // setShowToast(true);
-    } 
-    finally {
-    setIsLoadingAll(false);
-  }
+    } finally {
+      setIsLoadingAll(false);
+    }
   };
 
   const handleExportSelectedToExcel = async () => {
@@ -261,7 +258,7 @@ function Tablesearch() {
       return;
     }
     try {
-        setIsLoadingAll(true);
+      setIsLoadingAll(true);
       // console.log('selectedRows', selectedRows)
       const payload = {
         stoneCert: selectedRows?.map((row) => row.STONE).join(" "), // Converts the array of STONE IDs into a space-separated string
@@ -269,7 +266,7 @@ function Tablesearch() {
 
       const response = await Axios.post(
         "/search/stoneUser?type=excel",
-        payload
+        payload,
       );
 
       if (response.data.status === "success") {
@@ -284,7 +281,7 @@ function Tablesearch() {
       // setToastMessage('User not found.');
       setShowToast(true);
     } finally {
-       setIsLoadingAll(false); // Set loading to false after search completes or fails
+      setIsLoadingAll(false); // Set loading to false after search completes or fails
     }
   };
 
@@ -319,7 +316,7 @@ function Tablesearch() {
       };
       const response = await Axios.post(
         "/search/stoneUser?type=excel",
-        payload
+        payload,
       );
 
       if (response.data.status === "success") {
@@ -333,7 +330,7 @@ function Tablesearch() {
       // setToastMessage('User not found.');
       setShowToast(true);
     } finally {
-      setIsLoadingAll(false);  // Set loading to false after search completes or fails
+      setIsLoadingAll(false); // Set loading to false after search completes or fails
     }
   };
   const [showDropdown, setShowDropdown] = useState(false);
@@ -380,7 +377,6 @@ function Tablesearch() {
                       <button
                         className="sumbuttontable"
                         onClick={handleaddBasket}
-                        
                       >
                         Add to Basket
                       </button>
@@ -404,28 +400,26 @@ function Tablesearch() {
                       >
                         Modify Search
                       </button>
-                    <button
-                    className="sumbuttontable"
-                    onClick={handleaddwatchlist}
-                  >
-                    Add To WatchList
-                  </button>
                       <button
-                        onClick={handleClick}
-                        className={showDropdown ? "dropdown show" : "dropdown"}
+                        className="sumbuttontable"
+                        onClick={handleaddwatchlist}
                       >
-                        <div style={{ display: "flex" }}>
-                          <span
-                            style={{
-                              background: "#fff6ec",
-                              fontSize: "17px",
-                              color: "#4c3226",
-                            }}
-                          >
-                            Page Size:
-                          </span>
+                        Add To WatchList
+                      </button>
+
+                      <div
+                        className={
+                          showDropdown
+                            ? "custom-dropdown open"
+                            : "custom-dropdown"
+                        }
+                      >
+                        <button
+                          onClick={handleClick}
+                          className="custom-dropdown-toggle"
+                        >
+                          <span style={{ fontSize: "13px" }}>Page Size:</span>
                           <select
-                            style={{ margin: "-5px 0px 0px 5px" }}
                             value={rowsPerPage}
                             onChange={(e) => {
                               setRowsPerPage(parseInt(e.target.value));
@@ -439,8 +433,8 @@ function Tablesearch() {
                               </option>
                             ))}
                           </select>
-                        </div>
-                      </button>
+                        </button>
+                      </div>
                     </div>
                     <div
                       className="suggest-nam"
@@ -609,7 +603,7 @@ function Tablesearch() {
                                       setSelectedRows([]);
                                     } else {
                                       setSelectedRows(
-                                        data?.map((item) => item)
+                                        data?.map((item) => item),
                                       );
                                     }
                                   }}
@@ -739,7 +733,7 @@ function Tablesearch() {
                                     type="checkbox"
                                     checked={selectedRows?.some(
                                       (selected) =>
-                                        selected?.STONE === item?.STONE
+                                        selected?.STONE === item?.STONE,
                                     )}
                                     onChange={() => handleRowSelect(item)}
                                   />

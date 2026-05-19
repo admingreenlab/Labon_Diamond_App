@@ -68,38 +68,60 @@ function Watchlist() {
   const { setSearchState, fetchDatas } = useContext(BasketContext);
   const { setWatchlistCount, fetchWatchlistts } = useContext(WatchlistContext);
   const [showLoading, setShowLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [tabselect, settabselect] = useState({
     single: true,
     parcel: false,
+    jewel: false,
   });
+  const isAllSelected =
+    data?.length > 0 &&
+    data.every((item) =>
+      selectedRows?.some(
+        (i) => i.FL_SUB_LOT === item.FL_SUB_LOT && i.FL_BRID === item.FL_BRID,
+      ),
+    );
 
-  const fetchData = async (single) => {
-  if (isFetching.current) return;
-  isFetching.current = true;
+  const fetchData = async (type = "single") => {
+    setLoading(true);
 
-  setShowLoading(true); // Start loading
+    try {
+      // PARCEL
+      if (type === "parcel") {
+        const response = await Axios.get("user/watchlist?inventoryType=parcel");
 
-  try {
-    if (single === "parcel") {
-      const watchlistdata = JSON.parse(localStorage.getItem("watchlist"));
-      setData(watchlistdata);
-    } else {
-      const response = await Axios.get("user/watchlist");
-      if (response.status === 200) {
-        setData(response?.data?.data);
+        if (response.status === 200) {
+          setData(response?.data?.data || []);
+        }
       }
+
+      // JEWEL
+      else if (type === "jewel") {
+        const response = await Axios.get("user/watchlist?inventoryType=jewel");
+
+        if (response.status === 200) {
+          setData(response?.data?.data || []);
+        }
+      }
+
+      // SINGLE
+      else {
+        const response = await Axios.get("user/watchlist?inventoryType=single");
+
+        if (response.status === 200) {
+          setData(response?.data?.data || []);
+        }
+      }
+    } catch (err) {
+      console.log("Failed to fetch data", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.log("Failed to fetch data. Please try again.");
-  } finally {
-    setShowLoading(false); // Stop loading
-    isFetching.current = false;
-  }
-};
+  };
 
-
+  // INITIAL LOAD
   useEffect(() => {
-    fetchData();
+    fetchData("single");
   }, []);
 
   useEffect(() => {
@@ -115,25 +137,59 @@ function Watchlist() {
   // }, [selectedRows])
 
   const handleRowSelect = (item) => {
+    // SINGLE
     if (tabselect.single) {
-      setSelectedRows((prevSelected) => {
-        const isSelected = prevSelected.some(
-          (selected) => selected.STONE === item.STONE
-        );
-        return isSelected
-          ? prevSelected.filter((selected) => selected.STONE !== item.STONE)
-          : [...prevSelected, item]; // store whole item
+      setSelectedRows((prev) => {
+        const exists = prev.includes(item.STONE);
+
+        if (exists) {
+          return prev.filter((i) => i !== item.STONE);
+        }
+
+        return [...prev, item.STONE];
       });
-    } else {
-      setSelectedRows((prevSelected) => {
-        const isSelected = prevSelected.some(
-          (selected) => selected.FL_SUB_LOT === item.FL_SUB_LOT
+    }
+
+    // PARCEL
+    else if (tabselect.parcel) {
+      setSelectedRows((prev) => {
+        const exists = prev.some(
+          (i) => i.FL_SUB_LOT === item.FL_SUB_LOT && i.FL_BRID === item.FL_BRID,
         );
-        return isSelected
-          ? prevSelected.filter(
-              (selected) => selected.FL_SUB_LOT !== item.FL_SUB_LOT
-            )
-          : [...prevSelected, item]; // store whole item
+
+        if (exists) {
+          return prev.filter(
+            (i) =>
+              !(i.FL_SUB_LOT === item.FL_SUB_LOT && i.FL_BRID === item.FL_BRID),
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            FL_SUB_LOT: item.FL_SUB_LOT,
+            FL_BRID: item.FL_BRID,
+          },
+        ];
+      });
+    }
+
+    // JEWEL
+    else if (tabselect.jewel) {
+      setSelectedRows((prev) => {
+        const exists = prev.some((i) => i.FL_ITEM_CODE === item.FL_ITEM_CODE);
+
+        if (exists) {
+          return prev.filter((i) => i.FL_ITEM_CODE !== item.FL_ITEM_CODE);
+        }
+
+        return [
+          ...prev,
+          {
+            FL_ITEM_CODE: item.FL_ITEM_CODE,
+            FL_BRID: item.FL_BRID,
+          },
+        ];
       });
     }
   };
@@ -186,181 +242,215 @@ function Watchlist() {
               sum +
               ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
                 row.CARATS,
-            0
+            0,
           ) / data?.reduce((sum, row) => sum + row.CARATS, 0)
         : 0,
-      amount: data?.reduce(
+    amount: data?.reduce(
       (sum, row) =>
         sum +
         ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
-      0
+      0,
     ),
   };
 
   const handleaddBasket = async () => {
-  setShowLoading(true);
+    if (selectedRows.length === 0) {
+      setToastMessage("Please select item");
+      setShowToast(true);
+      return;
+    }
 
-  try {
-    if (tabselect.single) {
-      if (selectedRows.length > 0) {
-        const stoneIds = selectedRows.map((item) => item.STONE);
+    if (selectedRows.length > 500) {
+      setToastMessage("You can add only 500 stones at one time");
+      setShowToast(true);
+      return;
+    }
 
+    setLoading(true);
+
+    try {
+      // SINGLE WATCHLIST
+      if (tabselect.single) {
         const response = await Axios.post("user/userbasket", {
           type: "I",
-          stone_id: stoneIds,
+          stone_id: selectedRows,
           stype: "POLISH-SINGLE",
         });
 
         if (response.status === 200) {
-          fetchData("single");
-          setToastMessage("Stone added to basket");
-          setShowToast(true);
+          await Axios.delete("user/watchlist/remove", {
+            params: {
+              lotId: selectedRows.join(","),
+            },
+          });
+          await fetchDatas();
+          await fetchData("single");
+
           setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message || "Added to basket successfully",
+          );
+          setShowToast(true);
         }
-
-        await fetchDatas();
-      } else {
-        window.alert("Please select stone");
       }
-    } else {
-      if (selectedRows.length > 0) {
-        const payload = selectedRows.map((item) => ({
-          stone: item.FL_SUB_LOT,
-          branch: item.FL_BRID,
-        }));
 
-        const response = await Axios.post("user/userbasket", {
+      // PARCEL WATCHLIST
+      else if (tabselect.parcel) {
+        const payload = {
           type: "I",
-          stone_id: payload,
           stype: "POLISH-PARCEL",
-        });
+          stone_id: selectedRows.map((row) => ({
+            stone: row.FL_SUB_LOT,
+            branch: row.FL_BRID,
+          })),
+        };
+
+        const response = await Axios.post("user/userbasket", payload);
 
         if (response.status === 200) {
-          fetchData("parcel");
-          setToastMessage("Stone added to basket");
-          setShowToast(true);
+          await Axios.delete("user/watchlist/remove", {
+            params: {
+              lotId: selectedRows.map((row) => row.FL_SUB_LOT).join(","),
+              inventoryType: "POLISH-PARCEL",
+            },
+          });
+
+          await fetchDatas();
+          await fetchData("parcel");
           setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message || "Added to basket successfully",
+          );
+          setShowToast(true);
         }
-        await fetchDatas();
-      } else {
-        window.alert("Please select stone");
-      }
-    }
-  } catch (error) {
-    setToastMessage("Error adding to basket");
-    setShowToast(true);
-  } finally {
-    setShowLoading(false);
-  }
-};
-
-
-  const handleRemoveFromWatchlist = async () => {
-    if (selectedRows?.length < 1) {
-      window.alert("Please select StoneIds to clear the watchlist");
-      return;
-    }
-
-    if (selectedRows.length > 100) {
-      window.alert(
-        "Cannot remove all stones at once. Use the ‘All Watchlist Clear’ button to remove all items."
-      );
-      return;
-    }
-
-    if (!tabselect.single) {
-      removeFromLocalStorage(selectedRows);
-      fetchData("parcel");
-      setSelectedRows([]);
-      setToastMessage("Removed from the watchlist");
-      setShowToast(true);
-      await fetchWatchlistts();  
-      return;
-    }
-
-    try {
-      const lotIds = selectedRows.map((item) => item.STONE);
-
-      const response = await Axios.delete("user/watchlist/remove", {
-        params: { lotId: lotIds.join(",") },
-      });
-
-      if (response.status === 200) {
-        setToastMessage(response?.data?.message);
-        setShowToast(true);
-        setSelectedRows([]);
-        fetchData("single");
       }
 
+      // JEWEL WATCHLIST
+      else if (tabselect.jewel) {
+        const payload = {
+          type: "I",
+          stype: "JEWELRY",
+          stone_id: selectedRows.map((row) => ({
+            stone: row.FL_ITEM_CODE,
+            branch: row.FL_BRID,
+          })),
+        };
+
+        const response = await Axios.post("user/userbasket", payload);
+
+        if (response.status === 200) {
+          await Axios.delete("user/watchlist/remove", {
+            params: {
+              lotId: selectedRows.map((row) => row.FL_ITEM_CODE).join(","),
+              inventoryType: "JEWELRY",
+            },
+          });
+
+          await fetchDatas();
+          await fetchData("jewel");
+          setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message || "Added to basket successfully",
+          );
+          setShowToast(true);
+        }
+      }
       await fetchWatchlistts();
     } catch (error) {
-      console.error("Error removing from watchlist", error);
-      setToastMessage(error.response?.data || "Error removing from watchlist");
+      console.error("Error adding to basket:", error);
+
+      setToastMessage(error?.response?.data?.message || "Something went wrong");
       setShowToast(true);
-    }
-  };
-
-  const removeFromLocalStorage = (selectedRowsOrIds) => {
-    try {
-      const storedData = JSON.parse(localStorage.getItem("watchlist")) || [];
-
-      // Determine if input is array of objects or strings
-      const selectedLots =
-        typeof selectedRowsOrIds[0] === "string"
-          ? selectedRowsOrIds
-          : selectedRowsOrIds.map((item) => item.FL_SUB_LOT);
-
-         const updatedData = storedData.filter(
-        (item) => !selectedLots.includes(item.FL_SUB_LOT)
-      );
-
-      localStorage.setItem("watchlist", JSON.stringify(updatedData));
-      console.log("Successfully removed selected items.");
-    } catch (error) {
-      console.error("Error removing items:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleClearWatchlist = async () => {
-    if (!data || data.length === 0) {
-      setToastMessage("Watchlist is already empty");
+    if (selectedRows.length === 0) {
+      setToastMessage("Please select items");
       setShowToast(true);
       return;
     }
 
-    if (tabselect.single) {
-      if (selectedRows?.length === data?.length) {
-        try {
-          const response = await Axios.delete("user/watchlist/clear");
+    setLoading(true);
 
-          if (response.status === 200) {
-            setToastMessage("Removed from the watchlist");
-            setShowToast(true);
-            setSelectedRows([]);
-            fetchData("single");
-          }
+    try {
+      // SINGLE WATCHLIST
+      if (tabselect.single) {
+        const response = await Axios.delete("user/watchlist/remove", {
+          params: {
+            lotId: selectedRows.join(","),
+          },
+        });
 
+        if (response.status === 200) {
+          await fetchData("single");
           await fetchWatchlistts();
-        } catch (error) {
-          console.error("Error removing from watchlist", error);
-          setToastMessage(error.response?.data || "Error clearing watchlist");
+          setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message || "Selected stones cleared from watchlist",
+          );
           setShowToast(true);
         }
-      } else {
-        window.alert("Please select all StoneIds to clear the watchlist");
       }
-    } else {
-      // Parcel Watchlist
-      if (selectedRows?.length !== 0) {
-        removeFromLocalStorage(selectedRows); // works for single/multiple/all selections
-        fetchData("parcel");
-        setSelectedRows([]); // clear selection after removal
-        setToastMessage("Removed from the watchlist");
-        setShowToast(true);
-        await fetchWatchlistts();
-      } else {
-        window.alert("Please select StoneIds to clear the watchlist");
+
+      // PARCEL WATCHLIST
+      else if (tabselect.parcel) {
+        const lotIds = selectedRows.map((row) => row.FL_SUB_LOT).join(",");
+
+        const response = await Axios.delete("user/watchlist/remove", {
+          params: {
+            lotId: lotIds,
+            inventoryType: "PARCEL",
+          },
+        });
+
+        if (response.status === 200) {
+          await fetchData("parcel");
+          await fetchWatchlistts();
+          setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message || "Selected parcel cleared from watchlist",
+          );
+          setShowToast(true);
+        }
       }
+
+      // JEWEL WATCHLIST
+      else if (tabselect.jewel) {
+        const lotIds = selectedRows.map((row) => row.FL_ITEM_CODE).join(",");
+
+        const response = await Axios.delete("user/watchlist/remove", {
+          params: {
+            lotId: lotIds,
+          },
+        });
+
+        if (response.status === 200) {
+          await fetchData("jewel");
+          await fetchWatchlistts();
+          setSelectedRows([]);
+
+          setToastMessage(
+            response?.data?.message ||
+              "Selected jewelry cleared from watchlist",
+          );
+          setShowToast(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error clearing watchlist:", error);
+
+      setToastMessage(error?.response?.data?.message || "Something went wrong");
+      setShowToast(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -394,6 +484,7 @@ function Watchlist() {
                   ...prev,
                   single: true,
                   parcel: false,
+                  jewel: false,
                 }));
                 fetchData("single");
                 setSelectedRows([]);
@@ -410,12 +501,30 @@ function Watchlist() {
                   ...prev,
                   single: false,
                   parcel: true,
+                  jewel: false,
                 }));
                 fetchData("parcel");
                 setSelectedRows([]);
               }}
             >
               PARCEL
+            </button>
+            <button
+              className={
+                tabselect.jewel ? "sumbutton" : "sumbutton sumbutton-11"
+              }
+              onClick={() => {
+                settabselect((prev) => ({
+                  ...prev,
+                  single: false,
+                  parcel: false,
+                  jewel: true,
+                }));
+                fetchData("jewel");
+                setSelectedRows([]);
+              }}
+            >
+              JEWEL
             </button>
           </div>
           <div className="myquotations" style={{ marginBottom: "90px" }}>
@@ -469,16 +578,9 @@ function Watchlist() {
                       <button
                         className="sumbutton"
                         style={{}}
-                        onClick={handleRemoveFromWatchlist}
-                      >
-                        Remove Watchlist
-                      </button>
-                      <button
-                        className="sumbutton"
-                        style={{}}
                         onClick={handleClearWatchlist}
                       >
-                        All Watchlist Clear
+                        Watchlist Clear
                       </button>
                     </div>
                     <div
@@ -626,6 +728,241 @@ function Watchlist() {
                   </div>
                   {tabselect?.single ? (
                     <>
+                      <>
+                        {data?.length === 0 ? (
+                          <div
+                            style={{
+                              height: "300px",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              fontSize: "20px",
+                              color: "#4c3226",
+                              border: "1px solid #ddd",
+                              background: "#fafafa",
+                              width: "100%",
+                            }}
+                          >
+                            No items in Watch List
+                          </div>
+                        ) : (
+                          <div className="table-responsive pt-10">
+                            <table
+                              striped
+                              bordered
+                              hover
+                              style={{ width: "max-content", color: "black" }}
+                            >
+                              <thead className="tablecss">
+                                <tr>
+                                  <th>
+                                    <label className="checkbox style-a">
+                                      <input
+                                        type="checkbox"
+                                        checked={
+                                          selectedRows?.length ===
+                                            data?.length && data?.length > 0
+                                        }
+                                        onChange={() => {
+                                          if (
+                                            selectedRows?.length ===
+                                            data?.length
+                                          ) {
+                                            setSelectedRows([]);
+                                          } else {
+                                            setSelectedRows(
+                                              data?.map((item) => item.STONE),
+                                            );
+                                          }
+                                        }}
+                                      />
+                                      <div className="checkbox__checkmark"></div>
+                                    </label>
+                                  </th>
+                                  {/* <th>SrNo</th> */}
+                                  <th>Status</th>
+                                  <th>StoneId</th>
+                                  <th onClick={() => handleSort("LAB")}>
+                                    {" "}
+                                    Lab{" "}
+                                    {sortBy === "LAB"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th>Report No</th>
+                                  <th onClick={() => handleSort("SHAPE")}>
+                                    Shape{" "}
+                                    {sortBy === "SHAPE"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("CARATS")}>
+                                    Carats{" "}
+                                    {sortBy === "CARATS"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("COLOR")}>
+                                    Color{" "}
+                                    {sortBy === "COLOR"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("CLARITY")}>
+                                    Clarity{" "}
+                                    {sortBy === "CLARITY"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("CUT")}>
+                                    Cut
+                                    {sortBy === "CUT"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("POLISH")}>
+                                    Polish
+                                    {sortBy === "POLISH"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th onClick={() => handleSort("SYMM")}>
+                                    Symm
+                                    {sortBy === "SYMM"
+                                      ? sortOrder === "asc"
+                                        ? " ▲"
+                                        : " ▼"
+                                      : "▼"}
+                                  </th>
+                                  <th>Measurements</th>
+                                  <th>Table %</th>
+                                  <th>Depth %</th>
+                                  <th>Ratio</th>
+                                  <th>H&A</th>
+                                  <th>RapPrice</th>
+                                  <th>Discount %</th>
+                                  <th>Price/Cts</th>
+                                  <th>Amount</th>
+                                  <th>Certificate</th>
+                                  <th>VideoLink</th>
+                                  <th>Created By</th>
+                                </tr>
+                              </thead>
+                              <tbody className="tablecss">
+                                {currentRows?.map((item, index) => (
+                                  <tr key={index}>
+                                    <td>
+                                      <label className="checkbox style-a">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedRows?.includes(
+                                            item.STONE,
+                                          )}
+                                          onChange={() => handleRowSelect(item)}
+                                        />
+                                        <div className="checkbox__checkmark"></div>
+                                      </label>
+                                    </td>
+                                    {/* <td>{item.srNo}</td> */}
+                                    <td>{item.STATUS}</td>
+                                    <td>{item.STONE}</td>
+                                    <td>
+                                      <a
+                                        style={{ color: "blue" }}
+                                        href={`https://www.igi.org/reports/verify-your-report?r=${item.REPORTNO}`}
+                                        target="_blank"
+                                      >
+                                        {item.LAB}
+                                      </a>
+                                    </td>
+                                    <td>{item.REPORTNO}</td>
+                                    <td>{item.SHAPE}</td>
+                                    <td>{item.CARATS}</td>
+                                    <td>{item.COLOR}</td>
+                                    <td>{item.CLARITY}</td>
+                                    <td>{item.CUT}</td>
+                                    <td>{item.POLISH}</td>
+                                    <td>{item.SYMM}</td>
+                                    <td>{item.FL_MEASUREMENTS}</td>
+                                    <td>{item.FL_TABLE_PER?.toFixed(2)}</td>
+                                    <td>{item.FL_DEPTH_PER?.toFixed(2)}</td>
+                                    <td>{item.FL_RATIO || "-"}</td>
+                                    <td>{item.ha}</td>
+                                    <td>{item.RAP_PRICE?.toFixed(2)}</td>
+                                    <td>{item.ASK_DISC}</td>
+                                    <td>
+                                      {(
+                                        (item.RAP_PRICE *
+                                          (100 - Number(item.ASK_DISC))) /
+                                        100
+                                      ).toFixed(2)}
+                                    </td>
+                                    <td>
+                                      {(
+                                        ((item.RAP_PRICE *
+                                          (100 - Number(item.ASK_DISC))) /
+                                          100) *
+                                        item.CARATS
+                                      )?.toFixed(2)}
+                                    </td>
+                                    <td>
+                                      <a
+                                        href={`https://www.igi.org/reports/verify-your-report?r=${item.REPORTNO}`}
+                                        target="_blank"
+                                        style={{ color: "blue" }}
+                                      >
+                                        PDF
+                                      </a>
+                                    </td>
+                                    <td>
+                                      <a
+                                        href={`https://www.dnav360.com/vision/dna.html?d=${item.STONE}&ic=1`}
+                                        target="_blank"
+                                        style={{ color: "blue" }}
+                                      >
+                                        VIDEO
+                                      </a>
+                                    </td>
+                                    <td>{clientName}</td>
+                                    {/* <td>{item.companyName}</td> */}
+                                  </tr>
+                                ))}
+                                <tr className="tablecss">
+                                  <th></th>
+                                  <th colSpan={5}>Total</th>
+                                  <th>{totals.CARATS?.toFixed(2)}</th>
+                                  <th colSpan={10}></th>
+                                  <th></th>
+                                  <th>{totals.ASK_DISC?.toFixed(2)}</th>
+                                  <th>{totals.pricects?.toFixed(2)}</th>
+                                  <th>{totals.amount?.toFixed(2)}</th>
+                                  <th></th>
+                                  <th></th>
+                                  <th></th>
+                                  {/* <th></th> */}
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </>
+                    </>
+                  ) : tabselect?.parcel ? (
+                    <>
                       {data?.length === 0 ? (
                         <div
                           style={{
@@ -656,248 +993,19 @@ function Watchlist() {
                                   <label className="checkbox style-a">
                                     <input
                                       type="checkbox"
+                                      checked={isAllSelected}
                                       onChange={() => {
-                                        if (
-                                          selectedRows?.length === data?.length
-                                        ) {
+                                        if (isAllSelected) {
                                           setSelectedRows([]);
                                         } else {
-                                          setSelectedRows([...data]); // store full objects
+                                          setSelectedRows(
+                                            data?.map((item) => ({
+                                              FL_SUB_LOT: item.FL_SUB_LOT,
+                                              FL_BRID: item.FL_BRID,
+                                            })),
+                                          );
                                         }
                                       }}
-                                      checked={
-                                        selectedRows?.length === data?.length
-                                      }
-                                    />
-                                    <div className="checkbox__checkmark"></div>
-                                  </label>
-                                </th>
-                                {/* <th>SrNo</th> */}
-                                <th>Status</th>
-                                <th>StoneId</th>
-                                <th onClick={() => handleSort("LAB")}>
-                                  {" "}
-                                  Lab{" "}
-                                  {sortBy === "LAB"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th>Report No</th>
-                                <th onClick={() => handleSort("SHAPE")}>
-                                  Shape{" "}
-                                  {sortBy === "SHAPE"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("CARATS")}>
-                                  Carats{" "}
-                                  {sortBy === "CARATS"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("COLOR")}>
-                                  Color{" "}
-                                  {sortBy === "COLOR"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("CLARITY")}>
-                                  Clarity{" "}
-                                  {sortBy === "CLARITY"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("CUT")}>
-                                  Cut
-                                  {sortBy === "CUT"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("POLISH")}>
-                                  Polish
-                                  {sortBy === "POLISH"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th onClick={() => handleSort("SYMM")}>
-                                  Symm
-                                  {sortBy === "SYMM"
-                                    ? sortOrder === "asc"
-                                      ? " ▲"
-                                      : " ▼"
-                                    : "▼"}
-                                </th>
-                                <th>Measurements</th>
-                                <th>Table %</th>
-                                <th>Depth %</th>
-                                <th>Ratio</th>
-                                <th>H&A</th>
-                                <th>RapPrice</th>
-                                <th>Discount %</th>
-                                <th>Price/Cts</th>
-                                <th>Amount</th>
-                                <th>Certificate</th>
-                                <th>VideoLink</th>
-                                <th>Created By</th>
-                              </tr>
-                            </thead>
-                            <tbody className="tablecss">
-                              {currentRows?.map((item, index) => (
-                                <tr key={index}>
-                                  <td>
-                                    <label className="checkbox style-a">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedRows?.some(
-                                          (selected) =>
-                                            selected.STONE === item.STONE
-                                        )}
-                                        onChange={() => handleRowSelect(item)}
-                                      />
-                                      <div className="checkbox__checkmark"></div>
-                                    </label>
-                                  </td>
-                                  {/* <td>{item.srNo}</td> */}
-                                  <td>{item.STATUS}</td>
-                                  <td>{item.STONE}</td>
-                                  <td>
-                                    <a
-                                      style={{ color: "blue" }}
-                                      href={`https://www.igi.org/reports/verify-your-report?r=${item.REPORTNO}`}
-                                      target="_blank"
-                                    >
-                                      {item.LAB}
-                                    </a>
-                                  </td>
-                                  <td>{item.REPORTNO}</td>
-                                  <td>{item.SHAPE}</td>
-                                  <td>{item.CARATS}</td>
-                                  <td>{item.COLOR}</td>
-                                  <td>{item.CLARITY}</td>
-                                  <td>{item.CUT}</td>
-                                  <td>{item.POLISH}</td>
-                                  <td>{item.SYMM}</td>
-                                  <td>{item.FL_MEASUREMENTS}</td>
-                                  <td>{item.FL_TABLE_PER?.toFixed(2)}</td>
-                                  <td>{item.FL_DEPTH_PER?.toFixed(2)}</td>
-                                  <td>{item.FL_RATIO || "-"}</td>
-                                  <td>{item.ha}</td>
-                                  <td>{item.RAP_PRICE?.toFixed(2)}</td>
-                                  <td>{item.ASK_DISC}</td>
-                                  <td>
-                                    {(
-                                      (item.RAP_PRICE *
-                                        (100 - Number(item.ASK_DISC))) /
-                                      100
-                                    ).toFixed(2)}
-                                  </td>
-                                  <td>
-                                    {(
-                                      ((item.RAP_PRICE *
-                                        (100 - Number(item.ASK_DISC))) /
-                                        100) *
-                                      item.CARATS
-                                    )?.toFixed(2)}
-                                  </td>
-                                  <td>
-                                    <a
-                                      href={`https://www.igi.org/reports/verify-your-report?r=${item.REPORTNO}`}
-                                      target="_blank"
-                                      style={{ color: "blue" }}
-                                    >
-                                      PDF
-                                    </a>
-                                  </td>
-                                  <td>
-                                    <a
-                                      href={`https://www.dnav360.com/vision/dna.html?d=${item.STONE}&ic=1`}
-                                      target="_blank"
-                                      style={{ color: "blue" }}
-                                    >
-                                      VIDEO
-                                    </a>
-                                  </td>
-                                  <td>{clientName}</td>
-                                  {/* <td>{item.companyName}</td> */}
-                                </tr>
-                              ))}
-                              <tr className="tablecss">
-                                <th></th>
-                                <th colSpan={5}>Total</th>
-                                <th>{totals.CARATS?.toFixed(2)}</th>
-                                <th colSpan={10}></th>
-                                <th></th>
-                                <th>{totals.ASK_DISC?.toFixed(2)}</th>
-                                <th>{totals.pricects?.toFixed(2)}</th>
-                                <th>{totals.amount?.toFixed(2)}</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                {/* <th></th> */}
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {data?.length === 0 ? (
-                        <div
-                            style={{
-                            height: "300px",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            fontSize: "20px",
-                            color: "#4c3226",
-                            border: "1px solid #ddd",
-                            background: "#fafafa",
-                            width: "100%",
-                          }}
-                        >
-                          No items in Watch List
-                        </div>
-                      ) : (
-                        <div className="table-responsive pt-10">
-                          <table
-                            striped
-                            bordered
-                            hover
-                            style={{ width: "max-content", color: "black" }}
-                          >
-                            <thead className="tablecss">
-                              <tr>
-                                <th>
-                                  <label className="checkbox style-a">
-                                    <input
-                                      type="checkbox"
-                                      onChange={() => {
-                                        if (
-                                          selectedRows?.length === data?.length
-                                        ) {
-                                          setSelectedRows([]);
-                                        } else {
-                                          setSelectedRows([...data]); // store full objects
-                                        }
-                                      }}
-                                      checked={
-                                        selectedRows?.length === data?.length
-                                      }
                                     />
                                     <div className="checkbox__checkmark"></div>
                                   </label>
@@ -928,9 +1036,9 @@ function Watchlist() {
                                       <input
                                         type="checkbox"
                                         checked={selectedRows?.some(
-                                          (selected) =>
-                                            selected.FL_SUB_LOT ===
-                                            item.FL_SUB_LOT
+                                          (i) =>
+                                            i.FL_SUB_LOT === item.FL_SUB_LOT &&
+                                            i.FL_BRID === item.FL_BRID,
                                         )}
                                         onChange={() => handleRowSelect(item)}
                                       />
@@ -959,7 +1067,125 @@ function Watchlist() {
                         </div>
                       )}
                     </>
-                  )}
+                  ) : tabselect?.jewel ? (
+                    <>
+                      {data?.length === 0 ? (
+                        <div
+                          style={{
+                            height: "300px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontSize: "20px",
+                            color: "#4c3226",
+                            border: "1px solid #ddd",
+                            background: "#fafafa",
+                            width: "100%",
+                          }}
+                        >
+                          No items in Watch List
+                        </div>
+                      ) : (
+                        <div className="table-responsive pt-10">
+                          <table
+                            striped
+                            bordered
+                            hover
+                            style={{ width: "max-content", color: "black" }}
+                          >
+                            <thead className="tablecss">
+                              <tr>
+                                <th>
+                                  <label className="checkbox style-a">
+                                    <input
+                                      type="checkbox"
+                                      checked={
+                                        selectedRows?.length === data?.length &&
+                                        data?.length > 0
+                                      }
+                                      onChange={() => {
+                                        if (
+                                          selectedRows?.length === data?.length
+                                        ) {
+                                          setSelectedRows([]);
+                                        } else {
+                                          setSelectedRows(
+                                            data?.map((item) => ({
+                                              FL_ITEM_CODE: item.FL_ITEM_CODE,
+                                              FL_BRID: item.FL_BRID,
+                                            })),
+                                          );
+                                        }
+                                      }}
+                                    />
+                                    <div className="checkbox__checkmark"></div>
+                                  </label>
+                                </th>
+                                {/* <th>SrNo</th> */}
+                                <th>Status</th>
+                                <th>Location</th>
+                                <th>Style Code</th>
+                                <th>Item Code</th>
+                                <th>Size</th>
+                                <th>Quality</th>
+                                <th>Gross WT</th>
+                                <th>Net WT</th>
+                                <th>Diamond PCS</th>
+                                <th>Diamond CTS</th>
+                                <th>Image</th>
+                              </tr>
+                            </thead>
+                            <tbody className="tablecss">
+                              {currentRows?.map((item, index) => (
+                                <tr key={index}>
+                                  <td>
+                                    <label className="checkbox style-a">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedRows?.some(
+                                          (row) =>
+                                            row.FL_ITEM_CODE ===
+                                            item.FL_ITEM_CODE,
+                                        )}
+                                        onChange={() => handleRowSelect(item)}
+                                      />
+                                      <div className="checkbox__checkmark"></div>
+                                    </label>
+                                  </td>
+                                  <td>{item.FL_STATUS}</td>
+                                  <td>{item.FL_BRID}</td>
+                                  <td>{item.FL_STYLE_CODE}</td>
+                                  <td>{item.FL_ITEM_CODE}</td>
+                                  <td>{item.FL_SIZE}</td>
+                                  <td>{item.FL_QUALITY}</td>
+                                  <td>{item.FL_GROSS_WT}</td>
+                                  <td>{item.FL_NET_WT}</td>
+                                  <td>{item.FL_DIAM_PCS}</td>
+                                  <td>{item.FL_DIAM_CTS}</td>
+                                  <td>
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() =>
+                                        window.open(
+                                          item.FL_IMAGE_PATH,
+                                          "_blank",
+                                        )
+                                      }
+                                    >
+                                      Image
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  ) : null}
                 </IonCol>
               </IonRow>
             </IonGrid>
@@ -969,8 +1195,6 @@ function Watchlist() {
             message={"Loading..."}
             spinner="crescent"
             duration={0}
-            
-            
           />
           <IonToast
             isOpen={showToast}

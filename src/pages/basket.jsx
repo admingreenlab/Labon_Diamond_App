@@ -51,11 +51,9 @@ import {
   Zoom,
 } from "swiper/modules";
 import Axios, { baseURL } from "../service/jwtAuth";
-import ExcelJS from "exceljs";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import { Share } from "@capacitor/share";
-import { saveAs } from "file-saver";
 import XLSX from "xlsx-js-style";
 import { BasketContext } from "../context/BasketContext";
 
@@ -74,43 +72,64 @@ function Basket() {
   const [isLoading, setIsLoading] = useState(false);
   const { setSearchState, fetchDatas } = useContext(BasketContext);
   const [showLoading, setShowLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [tabselect, settabselect] = useState({
     single: true,
     parcel: false,
+    jewel: false,
   });
   // useEffect(() => {
   //     console.log('selectedRows', selectedRows)
   // }, [selectedRows])
 
   const handleRowSelect = (item) => {
+    // SINGLE
     if (tabselect.single) {
       setSelectedRows((prevSelected) => {
         const isSelected = prevSelected.some(
-          (selected) => selected.STONE === item.STONE
+          (selected) => selected.STONE === item.STONE,
         );
+
         if (isSelected) {
-          // Remove the item if already selected
           return prevSelected.filter(
-            (selected) => selected.STONE !== item.STONE
+            (selected) => selected.STONE !== item.STONE,
           );
         } else {
-          // Add the complete item if not selected
           return [...prevSelected, item];
         }
       });
-    } else {
+    }
+
+    // PARCEL
+    else if (tabselect.parcel) {
       setSelectedRows((prevSelected) => {
         const isSelected = prevSelected.some(
-          (selected) => selected.FL_SUB_LOT === item.FL_SUB_LOT
+          (selected) => selected.FL_SUB_LOT === item.FL_SUB_LOT,
         );
+
         if (isSelected) {
-          // Remove the item if already selected
           return prevSelected.filter(
-            (selected) => selected.FL_SUB_LOT !== item.FL_SUB_LOT
+            (selected) => selected.FL_SUB_LOT !== item.FL_SUB_LOT,
           );
         } else {
-          // Add the complete item if not selected
+          return [...prevSelected, item];
+        }
+      });
+    }
+
+    // JEWEL
+    else if (tabselect.jewel) {
+      setSelectedRows((prevSelected) => {
+        const isSelected = prevSelected.some(
+          (selected) => selected.FL_ITEM_CODE === item.FL_ITEM_CODE,
+        );
+
+        if (isSelected) {
+          return prevSelected.filter(
+            (selected) => selected.FL_ITEM_CODE !== item.FL_ITEM_CODE,
+          );
+        } else {
           return [...prevSelected, item];
         }
       });
@@ -135,96 +154,6 @@ function Basket() {
     }));
   };
 
-  // const downloadExcel = (data, fileName = 'diamond_data.xlsx') => {
-  //     const worksheet = XLSX.utils.json_to_sheet(data);
-  //     const workbook = XLSX.utils.book_new();
-  //     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-  //     // Generate buffer
-  //     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-  //     // Create Blob and trigger download
-  //     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  //     const link = document.createElement('a');
-  //     link.href = URL.createObjectURL(blob);
-  //     link.download = fileName;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  // };
-
-  // const handledownload = () => {
-  //     if (selectedRows.length === 0) {
-  //         window.alert('Please select stones to export.');
-  //         return;
-  //     }
-
-  //     const transformedData = transformData(selectedRows);
-  //     downloadExcel(transformedData, 'diamond_data.xlsx');
-  //     console.log(transformedData);
-  // };
-
-  // const handleDownload = async () => {
-  //     if (selectedRows.length === 0) {
-  //         // Show alert or toast when nothing to export
-  //         alert('Please select stones to export..');
-  //         return;
-  //     }
-
-  //     const exportData = selectedRows;
-
-  //     const data = exportData.map((item) => ({
-  //         'LOT NO': item.FL_SUB_LOT,
-  //         Type: item.FL_INVENTORY_TYPE,
-  //         Carats: item.FL_CARATS,
-  //         Clarity: item.FL_CLARITY,
-  //         Color: item.FL_COLOR,
-  //         'Co ID': item.FL_COID,
-  //         // Height: item.FL_HIGHT,
-  //         // Length: item.FL_LENGTH,
-  //         Main_LOT: item.FL_MAIN_LOT,
-  //         Shape: item.FL_SHAPE_GROUP,
-  //         // 'MM Size': item.FL_SIZE,
-  //         // Width: item.FL_WIDTH,
-  //         Location: item.FL_BRID
-  //     }));
-
-  //     const worksheet = XLSX.utils.json_to_sheet(data);
-  //     const workbook = XLSX.utils.book_new();
-  //     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-  //     const wbout = XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
-
-  //     const fileName = `ExportedDataBasket_${Date.now()}.xlsx`;
-
-  //     try {
-  //         const results = await Filesystem.writeFile({
-  //             path: fileName,
-  //             data: wbout,
-  //             directory: Directory.Documents,
-  //             encoding: Encoding.BASE64,
-  //         });
-
-  //         const uri = results.uri ? `file://${results.uri}` : results.uri;
-
-  //         alert(`File saved as: ${fileName}`);
-
-  //         if (Capacitor.getPlatform() === 'android') {
-  //             await Share.share({
-  //                 title: 'Exported Excel File',
-  //                 text: 'Here is your exported Excel file.',
-  //                 url: uri,
-  //                 dialogTitle: 'Share your file',
-  //             });
-  //         }
-  //         setToastMessage('File exported successfully!');
-  //         setShowToast(true);
-  //     } catch (error) {
-  //         console.error('Error saving or sharing file:', error);
-  //         setToastMessage('❌ Error exporting file. Please try again.');
-  //     }
-  // };
-
   const handleDownload = async () => {
     if (selectedRows.length === 0) {
       alert("Please select stones to export.");
@@ -235,7 +164,7 @@ function Basket() {
 
     const totalCarats = exportData.reduce(
       (sum, item) => sum + parseFloat(item.FL_CARATS || 0),
-      0
+      0,
     );
     const totalLotCount = exportData.length;
 
@@ -371,10 +300,159 @@ function Basket() {
         });
       }
 
-      setToastMessage("✅ File exported successfully!");
+      setToastMessage("File exported successfully!");
       setShowToast(true);
     } catch (error) {
       console.error("Error saving or sharing file:", error);
+      setShowToast(true);
+    }
+  };
+
+  const handleJewelDownload = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select jewel items to export.");
+      return;
+    }
+
+    const exportData = selectedRows;
+
+    const headers = [
+      "Status",
+      "Location",
+      "Style Code",
+      "Item Code",
+      "Size",
+      "Quality",
+      "Gross WT",
+      "Net WT",
+      "Diamond PCS",
+      "Diamond CTS",
+    ];
+
+    const dataRows = exportData.map((item) => [
+      item.FL_STATUS,
+      item.FL_BRID,
+      item.FL_STYLE_CODE,
+      item.FL_ITEM_CODE,
+      item.FL_SIZE || "-",
+      item.FL_QUALITY,
+      item.FL_GROSS_WT,
+      item.FL_NET_WT,
+      item.FL_DIAM_PCS,
+      item.FL_DIAM_CTS,
+    ]);
+
+    // Totals
+    const totalGrossWt = exportData.reduce(
+      (sum, item) => sum + Number(item.FL_GROSS_WT || 0),
+      0,
+    );
+
+    const totalNetWt = exportData.reduce(
+      (sum, item) => sum + Number(item.FL_NET_WT || 0),
+      0,
+    );
+
+    const totalDiamondPcs = exportData.reduce(
+      (sum, item) => sum + Number(item.FL_DIAM_PCS || 0),
+      0,
+    );
+
+    const totalDiamondCts = exportData.reduce(
+      (sum, item) => sum + Number(item.FL_DIAM_CTS || 0),
+      0,
+    );
+
+    const totalRow = [
+      "",
+      "",
+      "",
+      "TOTAL",
+      "",
+      "",
+      totalGrossWt.toFixed(2),
+      totalNetWt.toFixed(2),
+      totalDiamondPcs,
+      totalDiamondCts.toFixed(2),
+    ];
+
+    const titleRow = ["Labon Diamonds LLC"];
+    const emptyRow = new Array(headers.length).fill("");
+    const finalData = [titleRow, emptyRow, headers, ...dataRows, totalRow];
+    const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+
+    // Merge Title
+    worksheet["!merges"] = [
+      {
+        s: { r: 0, c: 0 },
+        e: { r: 0, c: headers.length - 1 },
+      },
+    ];
+
+    // Header Style
+    for (let col = 0; col < headers.length; col++) {
+      const cellAddress = XLSX.utils.encode_cell({
+        r: 2,
+        c: col,
+      });
+
+      if (worksheet[cellAddress]) {
+        worksheet[cellAddress].s = {
+          fill: {
+            patternType: "solid",
+            fgColor: { rgb: "C29958" },
+          },
+          font: {
+            bold: true,
+            color: { rgb: "000000" },
+          },
+          alignment: {
+            horizontal: "center",
+            vertical: "center",
+          },
+        };
+      }
+    }
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Jewel Export");
+
+    const wbout = XLSX.write(workbook, {
+      type: "base64",
+      bookType: "xlsx",
+    });
+
+    const fileName = `Jewel_Export_${Date.now()}.xlsx`;
+
+    try {
+      const result = await Filesystem.writeFile({
+        path: fileName,
+        data: wbout,
+        directory: Directory.Documents,
+        encoding: Encoding.BASE64,
+      });
+
+      const uri = result.uri;
+
+      // ALERT AFTER SAVE
+      alert(`File saved as: ${fileName}`);
+
+      if (Capacitor.getPlatform() === "android") {
+        await Share.share({
+          title: "Jewel Export File",
+          text: "Here is your exported jewel file.",
+          url: uri,
+          dialogTitle: "Share your file",
+        });
+      }
+
+      setToastMessage("Jewel file exported successfully!");
+      setShowToast(true);
+    } catch (error) {
+      console.log("Jewel Export Error:", error);
+
+      setToastMessage("Failed to export jewel file");
       setShowToast(true);
     }
   };
@@ -414,32 +492,36 @@ function Basket() {
     }
   }, []);
 
-  const fetchData = async (single) => {
-    if (isFetching.current) return;
-    isFetching.current = true;
-
-    setShowLoading(true); // <-- Start loading
+  const fetchData = async (type) => {
+    setLoading(true);
 
     try {
+      let stype = "single";
+
+      if (type === "parcel") {
+        stype = "parcel";
+      } else if (type === "jewel") {
+        stype = "JEWEL";
+      }
+
       const response = await Axios.post("user/userbasket", {
         type: "S",
-        stype: single === "parcel" ? "parcel" : "single",
+        stype,
       });
 
       if (response.status === 200) {
         setcount(response.data.count);
-        setData(response?.data?.data);
+        setData(response?.data?.data || []);
       }
     } catch (err) {
-      console.log("Failed to fetch data. Please try again.");
+      console.log("Failed to fetch data.");
     } finally {
-      setShowLoading(false); // <-- Stop loading
-      isFetching.current = false;
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData("single");
   }, []);
 
   useEffect(() => {
@@ -449,7 +531,7 @@ function Basket() {
       RAP: selectedRows?.reduce((sum, row) => sum + row.RAP_PRICE, 0),
       ASK_DISC: selectedRows?.reduce(
         (sum, row) => sum + row.ASK_DISC / selectedRows.length,
-        0
+        0,
       ),
       // pricects: selectedRows?.reduce((sum, row) => sum + (row.RAP_PRICE * (100 - Number(row.ASK_DISC)) / 100), 0),
       pricects:
@@ -459,14 +541,14 @@ function Basket() {
                 sum +
                 ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
                   row.CARATS,
-              0
+              0,
             ) / selectedRows?.reduce((sum, row) => sum + row.CARATS, 0)
           : 0,
-         amount: selectedRows?.reduce(
+      amount: selectedRows?.reduce(
         (sum, row) =>
           sum +
           ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
-        0
+        0,
       ),
     };
 
@@ -486,77 +568,127 @@ function Basket() {
               sum +
               ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
                 row.CARATS,
-            0
+            0,
           ) / data?.reduce((sum, row) => sum + row.CARATS, 0)
         : 0,
     amount: data?.reduce(
       (sum, row) =>
         sum +
         ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
-      0
+      0,
     ),
   };
 
   const handleremovebasket = async () => {
-    if (selectedRows?.length < 1) {
-      window.alert("Please select StoneId to remove the basket");
+    if (selectedRows.length === 0) {
+      setToastMessage("Please select at least one item");
+      setShowToast(true);
       return;
     }
 
-    setShowLoading(true);
+    // LIMIT CHECK
+    if (selectedRows.length > 500) {
+      setToastMessage("Maximum 500 items can be removed at a time");
+      setShowToast(true);
+      return;
+    }
+
+    let stype = "single";
+    let stone_id = [];
+
+    // SINGLE
+    if (tabselect.single) {
+      stype = "single";
+      stone_id = selectedRows.map((row) => row.STONE);
+    }
+
+    // PARCEL
+    else if (tabselect.parcel) {
+      stype = "parcel";
+      stone_id = selectedRows.map((row) => row.STONE);
+    }
+
+    // JEWEL
+    else if (tabselect.jewel) {
+      stype = "jewel";
+      stone_id = selectedRows.map((row) => row.FL_ITEM_CODE);
+    }
 
     try {
       const response = await Axios.post("user/userbasket", {
         type: "D",
-        stype: tabselect.single ? "single" : "parcel",
-        stone_id: selectedRows.map((row) => row.STONE),
+        stype,
+        stone_id,
       });
 
       if (response.status === 200) {
-        setToastMessage("Stone removed from basket");
+        setToastMessage("Removed from basket successfully");
+
         setShowToast(true);
-        fetchData(tabselect.single ? "single" : "parcel");
-        await fetchDatas();
+
         setSelectedRows([]);
+
+        // Refresh table
+        if (tabselect.single) {
+          await fetchData("single");
+        } else if (tabselect.parcel) {
+          await fetchData("parcel");
+        } else if (tabselect.jewel) {
+          await fetchData("jewel");
+        }
+
+        // Refresh basket count
+        await fetchDatas();
       }
     } catch (error) {
       console.log("error while removing basket", error);
-      setToastMessage(error.response?.data || "Error removing stone");
+
+      setToastMessage(error?.response?.data?.message || "Something went wrong");
+
       setShowToast(true);
-    } finally {
-      setShowLoading(false);
     }
   };
-
   const handleExportSelectedToExcel = async () => {
     setIsLoading(true);
 
-    if (selectedRows.length === 0) {
-      window.alert("Please select stones to export.");
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Validation
+      if (selectedRows.length === 0) {
+        window.alert("Please select items to export.");
+        return;
+      }
 
-    if (tabselect.single) {
-      try {
+      // SINGLE EXPORT
+      if (tabselect.single) {
         const payload = {
           stoneCert: selectedRows?.map((row) => row.STONE).join(" "),
         };
+
         const response = await Axios.post(
           "/search/stoneUser?type=excel",
-          payload
+          payload,
         );
 
-        if (response.data.status === "success") {
-          window.open(`${baseURL}/exports/${response.data.fileName}`);
+        if (response?.data?.status === "success") {
+          window.open(`${baseURL}/exports/${response.data.fileName}`, "_blank");
         }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
       }
-    } else {
-      handleDownload();
+
+      // PARCEL EXPORT
+      else if (tabselect.parcel) {
+        await handleDownload();
+      }
+
+      // JEWEL EXPORT
+      else if (tabselect.jewel) {
+        await handleJewelDownload();
+      }
+    } catch (error) {
+      console.log("Export Error:", error);
+
+      setToastMessage("Export failed");
+      setShowToast(true);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -591,6 +723,7 @@ function Basket() {
                   ...prev,
                   single: true,
                   parcel: false,
+                  jewel: false,
                 }));
                 fetchData("single");
                 setSelectedRows([]);
@@ -607,12 +740,30 @@ function Basket() {
                   ...prev,
                   single: false,
                   parcel: true,
+                  jewel: false,
                 }));
                 fetchData("parcel");
                 setSelectedRows([]);
               }}
             >
               PARCEL
+            </button>
+            <button
+              className={
+                tabselect.jewel ? "sumbutton" : "sumbutton sumbutton-11"
+              }
+              onClick={() => {
+                settabselect((prev) => ({
+                  ...prev,
+                  single: false,
+                  parcel: false,
+                  jewel: true,
+                }));
+                fetchData("jewel");
+                setSelectedRows([]);
+              }}
+            >
+              JEWEL
             </button>
           </div>
           <div className="myquotations">
@@ -681,8 +832,7 @@ function Basket() {
                       </li>
                     </ul>
                   )}
-
-                  {tabselect?.single ? (
+                  {tabselect?.single && (
                     <>
                       {data?.length === 0 ? (
                         <div
@@ -721,7 +871,7 @@ function Basket() {
                                           setSelectedRows([]);
                                         } else {
                                           setSelectedRows(
-                                            data?.map((item) => item)
+                                            data?.map((item) => item),
                                           );
                                         }
                                       }}
@@ -836,7 +986,7 @@ function Basket() {
                                         type="checkbox"
                                         checked={selectedRows.some(
                                           (selected) =>
-                                            selected.STONE === item.STONE
+                                            selected.STONE === item.STONE,
                                         )}
                                         onChange={() => handleRowSelect(item)}
                                       />
@@ -926,7 +1076,8 @@ function Basket() {
                         </div>
                       )}
                     </>
-                  ) : (
+                  )}
+                  {tabselect.parcel && (
                     <>
                       {data?.length === 0 ? (
                         <div
@@ -965,7 +1116,7 @@ function Basket() {
                                           setSelectedRows([]);
                                         } else {
                                           setSelectedRows(
-                                            data?.map((item) => item)
+                                            data?.map((item) => item),
                                           );
                                         }
                                       }}
@@ -1004,7 +1155,7 @@ function Basket() {
                                         checked={selectedRows?.some(
                                           (selected) =>
                                             selected.FL_SUB_LOT ===
-                                            item.FL_SUB_LOT
+                                            item.FL_SUB_LOT,
                                         )}
                                         onChange={() => handleRowSelect(item)}
                                       />
@@ -1027,6 +1178,128 @@ function Basket() {
                                   <td>{item.FL_ASK_AMT}</td>
                                   {/* <td>{item.FL_SIZE}</td> */}
                                   {/* <td>{item.FL_WIDTH}</td> */}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {tabselect.jewel && (
+                    <>
+                      {data?.length === 0 ? (
+                        <div
+                          style={{
+                            height: "300px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontSize: "20px",
+                            color: "#4c3226",
+                            border: "1px solid #ddd",
+                            background: "#fafafa",
+                            width: "100%",
+                          }}
+                        >
+                          No items in Basket
+                        </div>
+                      ) : (
+                        <div className="table-responsive pt-10">
+                          <table
+                            striped
+                            bordered
+                            hover
+                            style={{ width: "max-content", color: "black" }}
+                          >
+                            <thead className="tablecss">
+                              <tr>
+                                <th>
+                                  <label className="checkbox style-a">
+                                    <input
+                                      type="checkbox"
+                                      onChange={() => {
+                                        if (
+                                          selectedRows.length === data.length
+                                        ) {
+                                          setSelectedRows([]);
+                                        } else {
+                                          setSelectedRows(
+                                            data.map((item) => item),
+                                          );
+                                        }
+                                      }}
+                                      checked={
+                                        selectedRows.length === data.length &&
+                                        data.length > 0
+                                      }
+                                    />
+
+                                    <div className="checkbox__checkmark"></div>
+                                  </label>
+                                </th>
+
+                                <th>Status</th>
+                                <th>Location</th>
+                                <th>Style Code</th>
+                                <th>Item Code</th>
+                                <th>Size</th>
+                                <th>Quality</th>
+                                <th>Gross WT</th>
+                                <th>Net WT</th>
+                                <th>Diamond PCS</th>
+                                <th>Diamond CTS</th>
+                                <th>Image</th>
+                              </tr>
+                            </thead>
+
+                            <tbody className="tablecss">
+                              {data?.map((item, index) => (
+                                <tr key={index}>
+                                  <td>
+                                    <label className="checkbox style-a">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedRows.some(
+                                          (selected) =>
+                                            selected.FL_ITEM_CODE ===
+                                            item.FL_ITEM_CODE,
+                                        )}
+                                        onChange={() => handleRowSelect(item)}
+                                      />
+
+                                      <div className="checkbox__checkmark"></div>
+                                    </label>
+                                  </td>
+
+                                  <td>{item.FL_STATUS}</td>
+                                  <td>{item.FL_BRID}</td>
+                                  <td>{item.FL_STYLE_CODE}</td>
+                                  <td>{item.FL_ITEM_CODE}</td>
+                                  <td>{item.FL_SIZE || "-"}</td>
+                                  <td>{item.FL_QUALITY}</td>
+                                  <td>{item.FL_GROSS_WT}</td>
+                                  <td>{item.FL_NET_WT}</td>
+                                  <td>{item.FL_DIAM_PCS}</td>
+                                  <td>{item.FL_DIAM_CTS}</td>
+
+                                  <td>
+                                    <span
+                                      style={{
+                                        color: "blue",
+                                        cursor: "pointer",
+                                        textDecoration: "underline",
+                                      }}
+                                      onClick={() =>
+                                        window.open(
+                                          item.FL_IMAGE_PATH,
+                                          "_blank",
+                                        )
+                                      }
+                                    >
+                                      Image
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>

@@ -9,19 +9,36 @@ const WatchlistProvider = ({ children }) => {
 
   const fetchWatchlistts = async () => {
     if (isFetching.current) return;
+
     isFetching.current = true;
 
     try {
-      const apiRes = await Axios.get("user/watchlist");
-      const apiCount = apiRes?.data?.data?.length || 0;
+      // SINGLE
+      const singleRes = await Axios.get(
+        "user/watchlist?inventoryType=single"
+      );
 
-      const local = JSON.parse(localStorage.getItem("watchlist")) || [];
-      const localCount = local.length;
+      // PARCEL
+      const parcelRes = await Axios.get(
+        "user/watchlist?inventoryType=parcel"
+      );
 
-      setWatchlistCount(apiCount + localCount);
+      // JEWEL
+      const jewelRes = await Axios.get(
+        "user/watchlist?inventoryType=jewel"
+      );
+
+      const singleCount = singleRes?.data?.data?.length || 0;
+      const parcelCount = parcelRes?.data?.data?.length || 0;
+      const jewelCount = jewelRes?.data?.data?.length || 0;
+
+      // TOTAL COUNT
+      setWatchlistCount(
+        singleCount + parcelCount + jewelCount
+      );
 
     } catch (err) {
-      console.log("Failed to fetch watchlist.");
+      console.log("Failed to fetch watchlist.", err);
     } finally {
       isFetching.current = false;
     }
@@ -33,7 +50,11 @@ const WatchlistProvider = ({ children }) => {
 
   return (
     <WatchlistContext.Provider
-      value={{ watchlistCount, setWatchlistCount, fetchWatchlistts }}
+      value={{
+        watchlistCount,
+        setWatchlistCount,
+        fetchWatchlistts,
+      }}
     >
       {children}
     </WatchlistContext.Provider>

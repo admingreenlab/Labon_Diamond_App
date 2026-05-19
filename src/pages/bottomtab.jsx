@@ -28,7 +28,7 @@ import {WatchlistContext  } from "../context/Wishlistcontext";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { useHistory } from 'react-router-dom';
-
+import { Keyboard } from '@capacitor/keyboard';
 
 function bottom() {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -38,6 +38,7 @@ function bottom() {
     const [clientName, setClientName] = useState('');
     const { setSearchState, searchState } = useContext(SearchContext);
     const { watchlistCount, fetchWatchlistts } = useContext(WatchlistContext);
+    const [hideBottom, setHideBottom] = useState(false);
     const history = useHistory();
 
 
@@ -109,12 +110,45 @@ function bottom() {
     }
     };
 
+   useEffect(() => {
+  // ---- MOBILE (Capacitor) ----
+  if (Capacitor.isNativePlatform()) {
 
+    const showListener = Keyboard.addListener('keyboardWillShow', () => {
+      setHideBottom(true);
+    });
+
+    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
+      setHideBottom(false);
+    });
+
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }
+
+  // ---- WEB FALLBACK (Browser) ----
+  let initialHeight = window.innerHeight;
+
+  const handleResize = () => {
+    if (window.innerHeight < initialHeight - 150) {
+      setHideBottom(true);
+    } else {
+      setHideBottom(false);
+    }
+  };
+
+  window.addEventListener("resize", handleResize);
+
+  return () => window.removeEventListener("resize", handleResize);
+
+}, []);
 
     return (
         <>
            
-
+         {!hideBottom && (
             <div className='bottombtm-min'>
                 <div className='bottombtm'>
                     <a onClick={() => history.push('/home')} size='small' >
@@ -150,6 +184,7 @@ function bottom() {
                     </a>
                 </div>
             </div>
+             )}
         </>
     );
 }

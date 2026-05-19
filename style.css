@@ -29,7 +29,7 @@ ion-button {
 
 .dropdown-menu {
     position: absolute;
-    right: 10px;
+    left: 10px;
     background-color: white;
     border: 1px solid rgb(204, 204, 204);
     z-index: 1000;
@@ -960,139 +960,7 @@ only screen and (min-width: 1280px) */
     }
 }
 
-/* new Css dimoand  */
-.main-box [class^="icon-"]:before,
-.main-box [class*=" icon-"]:before {
-    font-family: "diamond-shape" !important;
-    font-style: normal !important;
-    font-weight: normal !important;
-    font-variant: normal !important;
-    text-transform: none !important;
-    speak: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
 
-.main-box i.othico:before {
-    font-family: 'icomoon' !important;
- 
-}
-
-.icon-asscher-shape:before {
-    content: "\61";
-}
-
-.icon-baguette-shape:before {
-    content: "\62";
-}
-
-.icon-cushion-shape:before {
-    content: "\63";
-}
-
-.icon-emerald-shape:before {
-    content: "\64";
-}
-
-.icon-heart-shape:before {
-    content: "\65";
-}
-
-.icon-marquise-shape:before {
-    content: "\66";
-}
-
-.icon-oval-shape:before {
-    content: "\67";
-}
-
-.icon-pear-shape:before {
-    content: "\68";
-}
-
-.icon-princess-shape:before {
-    content: "\69";
-}
-
-.icon-radiant-shape:before {
-    content: "\6a";
-}
-
-.icon-round-shape:before {
-    content: "\6b";
-}
-
-.icon-others-shape:before {
-    content: "\6c";
-}
-
-.icon-trillion-shape:before {
-    content: "\6d";
-}
-
-.icon-comparestone:before {
-    content: "\6e";
-}
-i.othico:before {
-    font-family: 'icomoon' !important;
- 
-}
-.icon-asscher-shape:before {
-    content: "\61";
-}
- 
-.icon-baguette-shape:before {
-    content: "\62";
-}
- 
-.icon-cushion-shape:before {
-    content: "\63";
-}
- 
-.icon-emerald-shape:before {
-    content: "\64";
-}
- 
-.icon-heart-shape:before {
-    content: "\65";
-}
- 
-.icon-marquise-shape:before {
-    content: "\66";
-}
- 
-.icon-oval-shape:before {
-    content: "\67";
-}
- 
-.icon-pear-shape:before {
-    content: "\68";
-}
- 
-.icon-princess-shape:before {
-    content: "\69";
-}
- 
-.icon-radiant-shape:before {
-    content: "\6a";
-}
- 
-.icon-round-shape:before {
-    content: "\6b";
-}
- 
-.icon-others-shape:before {
-    content: "\6c";
-}
- 
-.icon-trillion-shape:before {
-    content: "\6d";
-}
- 
-.icon-comparestone:before {
-    content: "\6e";
-}
 .SYD-ColorStyle {
     border: 1px solid #c29958;
     color: #000;
@@ -1108,71 +976,20 @@ i.othico:before {
     text-align: center;
 }
  
- 
- 
-.icon-Briolette-01:before {
-    content: "\e900";
-  }
-  .icon-Bullet-Cut-01:before {
-    content: "\e901";
-  }
-  .icon-Cadillac-01:before {
-    content: "\e902";
-  }
-  .icon-Carre:before {
-    content: "\e903";
-  }
-  .icon-Flower-Modified-01-01:before {
-    content: "\e904";
-  }
-  .icon-Hexagon-01:before {
-    content: "\e905";
-  }
-  .icon-Kite-01:before {
-    content: "\e906";
-  }
-  .icon-Lily-Cut-01:before {
-    content: "\e907";
-  }
-  .icon-Long-Kite-01:before {
-    content: "\e908";
-  }
-  .icon-Octagonal-01:before {
-    content: "\e909";
-  }
-  .icon-Rose-L-Radiant-01:before {
-    content: "\e90a";
-  }
-  .icon-Tapered-Baguette-01:before {
-    content: "\e90b";
-  }
-  .icon-Trepeze-01:before {
-    content: "\e90c";
-  }
-  .icon-Triangle-01-01:before {
-    content: "\e90d";
-  }
-  .icon-GL-Half-Moon:before {
-    content: "\e900";
-  }
-  i.icon-half-moon.othico.hmoon {
-    transform: scale(0.7);
- }
-
-@font-face {
-    font-family: "diamond-shape";
-    src: url("../labondimoand/public/img/diamond-shape.woff");
-    src: url("../labondimoand/public/img/diamond-shape.woff") format("embedded-opentype"), url("../labondimoand/public/img/diamond-shape.woff") format("woff"), url("../labondimoand/public/img/diamond-shape.woff") format("truetype"), url("../labondimoand/public/img/diamond-shape.woff") format("svg");
-    font-weight: normal;
-    font-style: normal;
+ .checkbox-label.selected {
+  background: #c29958;
+  transform: scale(1.05);
 }
 
-@font-face {
-    font-family: "icomoon";
-    src: url("../labondimoand/public/img/icomoon.woff");
-    src: url("../labondimoand/public/img/icomoon.woff") format("embedded-opentype"), url("../labondimoand/public/img/icomoon.woff") format("woff"), url("../labondimoand/public/img/icomoon.woff") format("truetype"), url("../labondimoand/public/img/icomoon.woff") format("svg");
-    font-weight: normal;
-    font-style: normal;
+/* text white */
+.checkbox-label.selected .shape-title {
+  color: #fff;
+}
+
+/* svg/image white effect */
+.checkbox-label.selected .shape-icon {
+  filter: brightness(0) invert(1);
+  
 }
 
 .main-box input {
@@ -1197,6 +1014,8 @@ span.checkbox-label i {
     transition-property: all;
     order: -2;
 }
+
+
 
 .main-box {
     padding: 10px 10px 15px 10px;
@@ -1261,20 +1080,38 @@ span.checkbox-label i {
     transition: 0.6s;
 }
 
-span.checkbox-label.selected{
+span.checkbox-label.selected {
     background: #c29958;
     color: white;
-    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border-color: #c29958;
 }
 .custom-table {
     border-collapse: collapse;
 }
 
-
+.checkbox-label.selected img {
+  filter: brightness(0) invert(1);
+}
 .custom-table th, .custom-table td {
     padding: 10px;
     border: none;
 }
+
+.shape-title {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #000;
+  text-align: center;
+
+  /* 🔥 IMPORTANT FIX */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+
 
 
 table {
@@ -1729,6 +1566,75 @@ span.checkbox-label img {
 
 @media (min-width: 600px) and (max-width: 1100px) {
 .dropdown-menu {
-    top: 120px;
+    top: 110px;
 }
 }
+
+  input[type="checkbox"] {
+    appearance: none;         
+    -webkit-appearance: none;   
+    width: 17px;
+    height: 17px;
+    background-color: #fff;     
+    border: 1px solid #4c3226;
+    border-radius: 3px;        
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+  }
+  
+  /* Show checkmark when checked */
+  input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid #4c3226; 
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-toggle {
+     display: flex;
+    align-items: center;
+    padding: 5px 13px;
+    background-color: #4c3226;
+    border: 1px solid #e4d2c5;
+    /* border-radius: 6px; */
+    color: #fff;
+    cursor: pointer;
+    width: 151px;
+}
+/* Select inside button */
+.custom-dropdown-toggle select {
+  margin-left: 6px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: #fff;       /* FIX: visible on dark background */
+  cursor: pointer;
+  outline: none;
+}
+
+/* Fix for select dropdown arrow being invisible */
+.custom-dropdown-toggle select option {
+  color: #000;       /* options remain normal */
+  background: #fff;
+}
+
+  
+.customss-menu-item {
+    --background: transparent;
+    --background-activated: white;    /* clicked / active background */
+    --background-focused: white;      /* focused background */
+    --background-hover: #f9f9f9;      /* hover */
+    --ripple-color: rgba(76,50,38,0.2); /* optional ripple */
+    --border-radius: 8px;
+  }
