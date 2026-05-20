@@ -412,7 +412,7 @@ const Polish = () => {
                                      className="shape-icon"
                                    />
            
-                                   <small className="shape-title">{option.name}</small>
+                                   <small className="shape-title" style={{textTransform:'uppercase'}}>{option.name}</small>
                                  </span>
                                ))}
            
@@ -428,7 +428,7 @@ const Polish = () => {
                                      height={45}
                                      className="shape-icon"
                                    />
-                                   <small className="shape-title">Others</small>
+                                   <small className="shape-title" style={{textTransform:'uppercase'}}>Others</small>
                                  </span>
                                </div>
                                {showVVS2 && (
