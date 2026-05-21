@@ -22,17 +22,19 @@ import {
 } from '@ionic/react';
 import { IonMenuToggle } from '@ionic/react';
 import { BasketContext } from '../context/BasketContext';
+import {WatchlistContext  } from "../context/WatchlistContext";
 import Axios, { baseURL } from "../service/jwtAuth";
 import { SearchContext } from "../context/SearchContext";
 
 function Bottom({isAuthenticated}) {
     const [showDropdown, setShowDropdown] = useState(false);
-    const basketContext = useContext(BasketContext);
-const basketCount = basketContext ? basketContext?.basketCount : 0;
+    const { basketCount } = useContext(BasketContext);
     const [data, setData] = useState(['' || 0]);
     const isFetching = useRef(false)
     const [clientName, setClientName] = useState('');
     const { setSearchState, searchState } = useContext(SearchContext);
+    const { watchlistCount, fetchWatchlistts } = useContext(WatchlistContext);
+    const [hideBottom, setHideBottom] = useState(false);
 
 
     const fetchData = async () => {
@@ -115,9 +117,9 @@ const basketCount = basketContext ? basketContext?.basketCount : 0;
                             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#FFDEB3" className="bi bi-heart" viewBox="0 0 16 16">
                                 <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
                             </svg>
-                            {data >= 0 && (
-                                <span className="count-shop">{data || 0}</span>
-                            )}
+                            {watchlistCount >= 0 && (
+                            <span className="count-shop">{watchlistCount || 0}</span>
+                        )}
                         </a>
                         <a href="/basket" size='small'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#FFDEB3" className="bi bi-cart3" viewBox="0 0 16 16">

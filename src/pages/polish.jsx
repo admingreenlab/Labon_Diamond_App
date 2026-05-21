@@ -53,17 +53,16 @@ const Polish = ({isAuthenticated}) => {
 
   const categories = {
     Shape: [
-      { name: "Round", shapeicon: "ico-shp icon-round-shape" },
-      { name: "Oval", shapeicon: "ico-shp icon-oval-shape" },
-      { name: "Pear", shapeicon: "ico-shp icon-pear-shape" },
-      { name: "Marquise", shapeicon: "ico-shp icon-marquise-shape" },
-      { name: "Heart", shapeicon: "ico-shp icon-heart-shape" },
-      { name: "Emerald", shapeicon: "ico-shp icon-emerald-shape" },
-      { name: "Cushion", shapeicon: "ico-shp icon-cushion-shape" },
-      { name: "Princess", shapeicon: "ico-shp icon-princess-shape" },
-      { name: "Radiant", shapeicon: "ico-shp icon-radiant-shape" },
-      { name: "Asscher", shapeicon: "ico-shp icon-asscher-shape" }
-      // { name: "Others", shapeicon: "ico-shp icon-others-shape" },
+      { name: "Round", image: "/shapeimage/Round.svg" },
+      { name: "Oval", image: "/shapeimage/Oval.svg" },
+      { name: "Pear", image: "/shapeimage/Pear.svg" },
+      { name: "Marquise", image: "/shapeimage/Marquise.svg" },
+      { name: "Heart", image: "/shapeimage/Heart.svg" },
+      { name: "Emerald", image: "/shapeimage/Emerald.svg" },
+      { name: "Cushion", image: "/shapeimage/Cushion.svg" },
+      { name: "Princess", image: "/shapeimage/Princess.svg" },
+      { name: "Radiant", image: "/shapeimage/Radiant.svg" },
+      { name: "Asscher", image: "/shapeimage/Asscher.svg" },
     ],
     Color: ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'G+', 'F.I.BLUE'],
     Clarity: ['VS+', 'SI+', 'FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'SI3', 'I1', 'I2', 'I3'],
@@ -379,44 +378,93 @@ const Polish = ({isAuthenticated}) => {
             <a href='/polish'>
               <button type="button" class="sumbutton ">Polish Parcel</button>
             </a>
-              {/* <a href='/jewel'>
-              <button type="button" class="sumbutton sumbutton-11 ">Jewelry</button>
-            </a> */}
+              <a href='/jewels'>
+              <button type="button" class="sumbutton sumbutton-11 " style={{padding:'10px'}}>Jewelry</button>
+            </a>
           </div>
           <IonRow>
-            <IonCol size="12">
-              <div className="main-box main2">
-                <div className="checkbox-group">
-                  {categories.Shape.map((option) => (
-                    <span key={option.name}
-                      className={`checkbox-label ${selectedOptionss.SHAPES?.includes(option.name.toUpperCase()) ? 'selected' : ''}`}
-                      onClick={() => handleCheckboxChange("SHAPES", option.name.toUpperCase())}>
-                      {option.name}
-                      <i className={option.shapeicon}></i>
-                    </span>
-                  ))}
-
-                  <div className="checkbox-group">
-                    <span className="checkbox-label" onClick={handleOthersClick}>
-                      Others
-                      <i className="ico-shp icon-others-shape"></i>
-                    </span>
-                  </div>
-                  {showVVS2 && (
-                    <div className="checkbox-group">
-                      {data?.SHAPE?.map((option) => (
-                        <span key={option.name}
-                          className={`checkbox-label ${selectedOptionss.SHAPES?.includes(option.name.toUpperCase()) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange("SHAPES", option.name.toUpperCase())}>
-                          {option.name}
-                          <i className={option.CLASS_NAME}></i>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </IonCol>
+          <IonCol size="12">
+                           <div className="main-box main2">
+                             <div className="checkbox-group">
+                               {categories.Shape.map((option) => (
+                                 <span
+                                   key={option.name}
+                                   className={`checkbox-label ${
+                                     selectedOptionss.SHAPES?.includes(
+                                       option.name.toUpperCase(),
+                                     )
+                                       ? "selected"
+                                       : ""
+                                   }`}
+                                   onClick={() =>
+                                     handleCheckboxChange(
+                                       "SHAPES",
+                                       option.name.toUpperCase(),
+                                     )
+                                   }
+                                 >
+                                   <img
+                                     src={option.image}
+                                     alt={option.name}
+                                     width={45}
+                                     height={45}
+                                     className="shape-icon"
+                                   />
+           
+                                   <small className="shape-title">{option.name}</small>
+                                 </span>
+                               ))}
+           
+                               <div className="checkbox-group">
+                                 <span
+                                   className="checkbox-label"
+                                   onClick={handleOthersClick}
+                                 >
+                                   <img
+                                     src="/shapeimage/Others.svg"
+                                     alt="Others"
+                                     width={45}
+                                     height={45}
+                                     className="shape-icon"
+                                   />
+                                   <small className="shape-title">Others</small>
+                                 </span>
+                               </div>
+                               {showVVS2 && (
+                                 <div className="checkbox-group">
+                                   {data?.SHAPE?.map((option) => (
+                                     <span
+                                       key={option.name}
+                                       className={`checkbox-label ${
+                                         selectedOptionss.SHAPES?.includes(
+                                           option.name.toUpperCase(),
+                                         )
+                                           ? "selected"
+                                           : ""
+                                       }`}
+                                       onClick={() =>
+                                         handleCheckboxChange(
+                                           "SHAPES",
+                                           option.name.toUpperCase(),
+                                         )
+                                       }
+                                     >
+                                       <img
+                                         src={`/shapeimage/${option.name}.svg`}
+                                         alt={option.name}
+                                         width={45}
+                                         height={45}
+                                         className="shape-icon"
+                                       />
+           
+                                       <small className="shape-title">{option.name}</small>
+                                     </span>
+                                   ))}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </IonCol>
           </IonRow>
 
           <IonRow>

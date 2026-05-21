@@ -56,6 +56,8 @@ import { Share } from '@capacitor/share';
 import { saveAs } from 'file-saver';
 // import * as XLSX from 'xlsx';
 import XLSX from "xlsx-js-style";
+import { BasketContext } from "../context/BasketContext";
+import { WatchlistContext } from "../context/WatchlistContext";
 
 function Polishtable({isAuthenticated}) {
     const history = useHistory();
@@ -74,7 +76,9 @@ function Polishtable({isAuthenticated}) {
     const [toastMessage, setToastMessage] = useState('');
     const [isLoadings, setIsLoadings] = useState(false);
     const selectedOptionss = location.state?.selectedOptionss;
-
+    const { setSearchState, fetchDatas } = useContext(BasketContext);
+    const { setWatchlistCount, fetchWatchlistts } = useContext(WatchlistContext);
+    const [isLoadingAll, setIsLoadingAll] = useState(false);
 
     useEffect(() => {
         if (searchResults && !hasFetched.current) {
@@ -161,55 +165,84 @@ function Polishtable({isAuthenticated}) {
     };
 
 
-    const handleaddwatchlist = () => {
-        if (selectedRows.length === 0) {
-            window.alert('Please select stones to add to the Watchlist.');
-            return;
+    const handleaddwatchlist = async () => {
+        if (selectedRows.length < 1) {
+          setToastMessage("Please select jewelry");
+          setShowToast(true);
+          return;
         }
-
-        let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
-
-        selectedRows.forEach(item => {
-            const alreadyInWatchlist = watchlist.some(watchlistItem => watchlistItem.FL_SUB_LOT === item.FL_SUB_LOT);
-            if (!alreadyInWatchlist) {
-                watchlist.push(item);
-            }
-        });
-
-        localStorage.setItem('watchlist', JSON.stringify(watchlist));
-        setToastMessage('Added to Watchlist!');
-        setShowToast(true);
-        setSelectedRows([]);
-        window.location.reload();
-    }
-
+    
+        try {
+          const users =
+            localStorage.getItem("user") || sessionStorage.getItem("user");
+    
+          const FL_COID = JSON.parse(users).FL_COID;
+    
+          const response = await Axios.post("user/watchlist/add", {
+            lotIds: selectedRows.map((row) => ({
+              FL_SUB_LOT: row.FL_SUB_LOT,
+              FL_BRID: row.FL_BRID,
+            })),
+            inventoryType: "POLISH-PARCEL",
+            coid: FL_COID,
+          });
+    
+          if (response.data?.status === "success") {
+            setToastMessage(response.data?.message || "Added to watchlist");
+    
+            setShowToast(true);
+    
+            setSelectedRows([]);
+          }
+          await fetchWatchlistts();
+        } catch (error) {
+          console.error("Error adding watchlist:", error);
+    
+          setToastMessage(
+            error?.response?.data?.message || "Failed to add watchlist",
+          );
+    
+          setShowToast(true);
+        }
+      };
 
     const handleaddBasket = async () => {
-        try {
-            const response = await Axios.post('user/userbasket', {
-                type: 'I',
-                stone_id: selectedRows.map(row => ({
-                stone: row.FL_SUB_LOT, 
-                branch: row.FL_BRID 
-            })),
-                stype: 'POLISH-PARCEL',
-                
-            })
-            if (response.status === 200) {
-                // const eventBus = getEventBus();
-                setToastMessage(response?.data?.status);
-                setShowToast(true);
-                // eventBus.emit("basketUpdated");
-                // window.alert('Added to basket')
-                setSelectedRows([]);
-            }
-        } catch (error) {
-            console.error("error to handle basket", error)
-            setToastMessage("selected Stone Id ")
-            // setToastMessage('User not found.');
-            setShowToast(true);
+        if (selectedRows.length === 0) {
+          window.alert("Please select stone to add Basket.");
+          return;
         }
-    }
+        if (selectedRows.length > 500) {
+          window.alert("You can add a maximum of 500 stones to the Add to Basket.");
+          return;
+        }
+        setIsLoadingAll(true);
+        try {
+          const response = await Axios.post("user/userbasket", {
+            type: "I",
+            stone_id: selectedRows.map((row) => ({
+              stone: row.FL_SUB_LOT,
+              branch: row.FL_BRID,
+            })),
+            stype: "POLISH-PARCEL",
+          });
+          if (response.status === 200) {
+            // const eventBus = getEventBus();
+            setToastMessage("Stone added to basket");
+            setShowToast(true);
+            // eventBus.emit("basketUpdated");
+            // window.alert('Added to basket')
+            setSelectedRows([]);
+          }
+          await fetchDatas();
+        } catch (error) {
+          console.error("error to handle basket", error);
+          setToastMessage("selected Stone Id ");
+          // setToastMessage('User not found.');
+          setShowToast(true);
+        } finally {
+          setIsLoadingAll(false);
+        }
+      };
 
     const handleExportSelectedToExcel = async () => {
 
@@ -699,8 +732,7 @@ const handleDownload = async () => {
                                             <button style={{ fontWeight: '300', padding: '5px 8px', border: '1px solid #b89154', color: '#fff', background: '#4c3226', borderRadius: "3px" }}>A</button>
                                             <label style={{ fontWeight: '300', color: "black" }}> Memo:</label>
                                             <button style={{ fontWeight: '300', padding: '5px 8px', border: '1px solid #b89154', color: '#fff', background: '#4c3226', borderRadius: "3px" }}> M </button>
-                                            <label style={{ fontWeight: '300', color: "black" }}> ArrivingSoon:</label>
-                                            <button style={{ fontWeight: '300', padding: '5px 8px', border: '1px solid #b89154', color: '#fff', background: '#4c3226', borderRadius: "3px" }}> AS </button>
+                                            
                                         </div>
                                     </div>
                                     <div style={{ margin: '0px 0px 10px 0px' }}>

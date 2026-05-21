@@ -34,6 +34,8 @@ import Watchlist from './pages/watchlist';
 import Basket from './pages/basket';
 import { BasketProvider } from './context/BasketContext';
 import { SearchProvider } from './context/SearchContext';
+import { JewelProvider } from "./context/JewelContext";
+import { WatchlistProvider } from "./context/WatchlistContext";
 import Home from './pages/home';
 import Tablesearch from './pages/tablesearch';
 import WebHistory from './pages/webhistory';
@@ -43,7 +45,8 @@ import { PolishProvider } from './context/PolishContext';
 import Polishtable from './pages/polishtable';
 import { App as CapacitorApp } from '@capacitor/app';
 import { AccountDelete } from './pages/accountdelete';
-// import Jewel from './pages/jewel';
+import Jewel from './pages/jewel';
+import Jeweltables from './pages/jeweltables';
 
 setupIonicReact({ mode: 'md' });
 
@@ -102,6 +105,8 @@ function App() {
       {isAuthenticated ? (
         <BasketProvider>
           <PolishProvider>
+          <JewelProvider>
+          <WatchlistProvider>
             <IonTabs id="main-content">
               <IonRouterOutlet>
                 <Route exact path="/">
@@ -127,6 +132,8 @@ function App() {
                     <Route path="/polishtableshow" render={() => <Polishtable isAuthenticated={isAuthenticated}/>} exact={true} />
                     <Route path="/webhistorytable" render={() => <WebHistorytable isAuthenticated={isAuthenticated}></WebHistorytable>} exact={true} />
                     <Route path="/polish" render={() => <Polish isAuthenticated={isAuthenticated}></Polish>} exact={true} />
+                    <Route path="/jewels" render={() => <Jewel isAuthenticated={isAuthenticated}></Jewel>} exact={true} />
+                    <Route path="/jeweltable" render={() => <Jeweltables isAuthenticated={isAuthenticated}></Jeweltables>} exact={true} />
                     <Route path="/deleteaccount" render={() => <AccountDelete isAuthenticated={isAuthenticated}></AccountDelete>} exact={true} />
                   </>
                 ) : (
@@ -134,6 +141,8 @@ function App() {
                 )}
               </IonRouterOutlet>
             </IonTabs>
+            </WatchlistProvider>
+            </JewelProvider>
           </PolishProvider>
         </BasketProvider>
       ) : (

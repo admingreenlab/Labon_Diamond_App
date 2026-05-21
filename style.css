@@ -343,6 +343,22 @@ ion-list.md.list-md {
     margin-left: auto;
 } */
 
+
+.checkbox-label.selected {
+    background: #c29958;
+    transform: scale(1.05);
+  }
+  
+  /* text white */
+  .checkbox-label.selected .shape-title {
+    color: #fff;
+  }
+  
+  /* svg/image white effect */
+  .checkbox-label.selected .shape-icon {
+    filter: brightness(0) invert(1);
+  }  
+
 ion-radio {
     --border-radius: 100%;
     --inner-border-radius: 100%;
@@ -1121,11 +1137,17 @@ span.checkbox-label i {
     transition: 0.6s;
 }
 
-span.checkbox-label.selected{
+span.checkbox-label.selected {
     background: #c29958;
     color: white;
-    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border-color: #c29958;
 }
+
+.checkbox-label.selected img {
+    filter: brightness(0) invert(1);
+  }
+
 .custom-table {
     border-collapse: collapse;
 }
