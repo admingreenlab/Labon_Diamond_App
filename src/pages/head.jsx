@@ -34,31 +34,31 @@ function apps({isAuthenticated}) {
     const { setSearchState, searchState } = useContext(SearchContext);
 
 
-    const fetchData = async () => {
-        if (isFetching.current) return;
-        isFetching.current = true;
-        try {
-            const response = await Axios.get('user/watchlist');
+    // const fetchData = async () => {
+    //     if (isFetching.current) return;
+    //     isFetching.current = true;
+    //     try {
+    //         const response = await Axios.get('user/watchlist');
 
-            if (response.status === 200) {
-                setData(response?.data?.data?.length); // Update state only if the component is still mounted
-                // console.log(response?.data?.data?.length)
-            }
-        }
-        catch (err) {
-            console.log("Failed to fetch data. Please try again."); // Set error state
-        }
-        finally {
+    //         if (response.status === 200) {
+    //             setData(response?.data?.data?.length); // Update state only if the component is still mounted
+    //             // console.log(response?.data?.data?.length)
+    //         }
+    //     }
+    //     catch (err) {
+    //         console.log("Failed to fetch data. Please try again."); // Set error state
+    //     }
+    //     finally {
 
-            isFetching.current = false;
-        }
-    };
+    //         isFetching.current = false;
+    //     }
+    // };
 
-    useEffect(() => {
-        if (isAuthenticated) {
-        fetchData();
-        }
-    }, [isAuthenticated]);
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //     fetchData();
+    //     }
+    // }, [isAuthenticated]);
 
     const toggleDropdown = (e) => {
         e?.stopPropagation();

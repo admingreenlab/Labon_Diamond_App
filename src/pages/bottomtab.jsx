@@ -37,31 +37,31 @@ function Bottom({isAuthenticated}) {
     const [hideBottom, setHideBottom] = useState(false);
 
 
-    const fetchData = async () => {
-        if (!isAuthenticated) return;
+    // const fetchData = async () => {
+    //     if (!isAuthenticated) return;
         
-        if (isFetching.current) return;
-        isFetching.current = true;
-        try {
-            const response = await Axios.get('user/watchlist');
+    //     if (isFetching.current) return;
+    //     isFetching.current = true;
+    //     try {
+    //         const response = await Axios.get('user/watchlist');
 
-            if (response.status === 200) {
-                setData(response?.data?.data?.length);
-            }
-        }
-        catch (err) {
-            console.log("Failed to fetch data. Please try again.");
-        }
-        finally {
-            isFetching.current = false;
-        }
-    };
+    //         if (response.status === 200) {
+    //             setData(response?.data?.data?.length);
+    //         }
+    //     }
+    //     catch (err) {
+    //         console.log("Failed to fetch data. Please try again.");
+    //     }
+    //     finally {
+    //         isFetching.current = false;
+    //     }
+    // };
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            fetchData();
-        }
-    }, [isAuthenticated]);
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         fetchData();
+    //     }
+    // }, [isAuthenticated]);
 
     const toggleDropdown = (e) => {
         e?.stopPropagation();
