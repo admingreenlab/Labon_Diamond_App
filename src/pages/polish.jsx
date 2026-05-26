@@ -12,13 +12,13 @@ import {
   IonButton,
   IonModal,
   IonToast,
-  IonLoading
+  IonLoading,
 } from "@ionic/react";
-import Header from './head';
+import Header from "./head";
 import Axios, { baseURL } from "../service/jwtAuth";
 import { PolishContext } from "../context/PolishContext";
 import { useHistory, useLocation } from "react-router-dom";
-import Bottom from './bottomtab';
+import Bottom from "./bottomtab";
 
 const Polish = () => {
   const history = useHistory();
@@ -32,7 +32,7 @@ const Polish = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState(false);
   const [showVVS2, setShowVVS2] = useState(false);
-  const [remark, setRemark] = useState('');
+  const [remark, setRemark] = useState("");
   const [isAdvanceSearchOpen, setIsAdvanceSearchOpen] = useState(false);
   const [advanceSearchFields, setAdvanceSearchFields] = useState({
     tableFrom: "",
@@ -47,10 +47,9 @@ const Polish = () => {
   });
   const [searchResults, setSearchResults] = useState([]);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
-
 
   const categories = {
     Shape: [
@@ -65,25 +64,59 @@ const Polish = () => {
       { name: "Radiant", image: "/shapeimage/Radiant.svg" },
       { name: "Asscher", image: "/shapeimage/Asscher.svg" },
     ],
-    Color: ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'G+', 'F.I.BLUE'],
-    Clarity: ['VS+', 'SI+', 'FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'SI3', 'I1', 'I2', 'I3'],
-    CARAT: ['-2', '+2-6.5', '+6.5-11', '+11-14', '1/10', '1/6', '1/5', '1/4', '1/3', '3/8', '1/2', '3/4', 'None', '+7-10', '-', '+1.5-2', '1.04DABBI', '1.00-1.49', '+00-0', '+000-00', '+0-1'],
+    Color: ["D", "E", "F", "G", "H", "I", "J", "K", "G+", "F.I.BLUE"],
+    Clarity: [
+      "VS+",
+      "SI+",
+      "FL",
+      "IF",
+      "VVS1",
+      "VVS2",
+      "VS1",
+      "VS2",
+      "SI1",
+      "SI2",
+      "SI3",
+      "I1",
+      "I2",
+      "I3",
+    ],
+    CARAT: [
+      "-2",
+      "+2-6.5",
+      "+6.5-11",
+      "+11-14",
+      "1/10",
+      "1/6",
+      "1/5",
+      "1/4",
+      "1/3",
+      "3/8",
+      "1/2",
+      "3/4",
+      "None",
+      "+7-10",
+      "-",
+      "+1.5-2",
+      "1.04DABBI",
+      "1.00-1.49",
+      "+00-0",
+      "+000-00",
+      "+0-1",
+    ],
     // Cut: ['ID', 'EX', 'VG'],
     // Lab: ['IGI', 'GIA', 'GSI', 'NONC', 'GCAL', 'NO_CERT'],
     // Polish: ['ID', 'EX', 'VG', 'GD', 'FR'],
     // Symm: ['EX', 'VG', 'GD', 'FR', 'G'],
     // Flour: ["NON", "FNT", "MED", "SL", "VSL", "STG", "VST"],
-    location: []
+    location: [],
   };
 
-
-
-  const storedData = localStorage.getItem('branches');
+  const storedData = localStorage.getItem("branches");
   const datas = JSON.parse(storedData);
 
-
   // Populate the location category with branch names
-  const locations = datas?.map(branch => branch.FL_BRANCH_NAME);
+  const locations = datas?.map((branch) => branch.FL_BRANCH_NAME);
 
   // Add the location category to categories
   categories.location = locations;
@@ -148,15 +181,13 @@ const Polish = () => {
           searchpolish.Memo ||
           searchpolish.A ||
           searchpolish.Hold
-        )
+        ),
       );
     }
   }, [searchpolish]);
 
-
-
   useEffect(() => {
-    const storedOptions = localStorage.getItem('selectedOptionss');
+    const storedOptions = localStorage.getItem("selectedOptionss");
     if (storedOptions) {
       setSelectedOptionss(JSON.parse(storedOptions));
       // console.log('Stored Options:', JSON.parse(storedOptions));
@@ -178,28 +209,25 @@ const Polish = () => {
       const newSelected = { ...prev };
       if (!newSelected[category]) newSelected[category] = [];
       if (newSelected[category].includes(option)) {
-        newSelected[category] = newSelected[category].filter((item) => item !== option);
+        newSelected[category] = newSelected[category].filter(
+          (item) => item !== option,
+        );
       } else {
         newSelected[category] = [...newSelected[category], option];
-
       }
       return newSelected;
     });
-
   };
-
 
   useEffect(() => {
     let isMounted = true; // Track whether the component is still mounted
 
     const fetchData = async () => {
       try {
-        const response = await Axios.get('search/parmas?type=single');
+        const response = await Axios.get("search/parmas?type=single");
         if (isMounted) {
           setData(response.data.data); // Update state only if the component is still mounted
-
         }
-
       } catch (err) {
         if (isMounted) {
           setError("Failed to fetch data. Please try again."); // Set error state
@@ -216,7 +244,6 @@ const Polish = () => {
     };
   }, []);
 
-
   // Handle advance search toggle
   const handleAdvanceSearchClick = () => {
     setIsAdvanceSearchOpen((prev) => !prev);
@@ -230,9 +257,7 @@ const Polish = () => {
     }));
   };
 
-
   const handleSubmit = async () => {
-
     const payload = {
       CLARITY: selectedOptionss.Clarity || [],
       COLOR: selectedOptionss.Color || [],
@@ -250,7 +275,6 @@ const Polish = () => {
       stoneCert: stoneId || "",
       // FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
-
         FromTable_per: advanceSearchFields.tableFrom || "",
         ToTable_per: advanceSearchFields.tableTo || "",
 
@@ -267,32 +291,38 @@ const Polish = () => {
     };
 
     const cleanPayload = Object.fromEntries(
-      Object.entries(payload).filter(([_, value]) => value !== undefined && value !== "" && !(Array.isArray(value) && value.length === 0))
+      Object.entries(payload).filter(
+        ([_, value]) =>
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0),
+      ),
     );
 
     const formData = {
       remark: remark,
-      data: cleanPayload
+      data: cleanPayload,
     };
 
     try {
-      const response = await Axios.post('mail/postdemand', JSON.stringify(formData));
+      const response = await Axios.post(
+        "mail/postdemand",
+        JSON.stringify(formData),
+      );
 
       if (response.status === 200) {
-        console.log('search seuccess', response.data)
+        console.log("search seuccess", response.data);
         setShowModal(false);
-        setRemark('');
+        setRemark("");
       } else {
-        console.log(data.message || 'failed');
+        console.log(data.message || "failed");
       }
     } catch (err) {
-      console.log('An error occurred. Please try again.', err);
+      console.log("An error occurred. Please try again.", err);
     }
-
   };
 
   const handlesearch = async () => {
-
     setIsLoading(true);
     const payload = {
       CLARITY: selectedOptionss.Clarity || [],
@@ -311,7 +341,6 @@ const Polish = () => {
       CARAT: selectedOptionss.CARAT || [],
       // FLOUR: selectedOptions.Flour || [],
       ...(isAdvanceSearchOpen && {
-
         FromTable_per: advanceSearchFields.tableFrom || "",
         ToTable_per: advanceSearchFields.tableTo || "",
 
@@ -328,13 +357,21 @@ const Polish = () => {
     };
 
     const cleanPayloads = Object.fromEntries(
-      Object.entries(payload).filter(([_, value]) => value !== undefined && value !== "" && !(Array.isArray(value) && value.length === 0))
+      Object.entries(payload).filter(
+        ([_, value]) =>
+          value !== undefined &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0),
+      ),
     );
 
     setSearchpolish(cleanPayloads);
 
     try {
-      const response = await Axios.post('search/bulk/stoneUser', JSON.stringify(cleanPayloads));
+      const response = await Axios.post(
+        "search/bulk/stoneUser",
+        JSON.stringify(cleanPayloads),
+      );
 
       if (response.status === 200) {
         // Update state here if necessary
@@ -344,155 +381,205 @@ const Polish = () => {
         // Navigate to the new page
         history.push({
           pathname: `/polishtableshow`,
-          state: { searchResults: response.data.result, selectedOptionss: selectedOptionss }
+          state: {
+            searchResults: response.data.result,
+            selectedOptionss: selectedOptionss,
+          },
         });
         // window.location.reload()
       } else {
         setError(data.message);
-        setToastMessage(err.response.data.message)
+        setToastMessage(err.response.data.message);
         // setToastMessage('User not found.');
         setShowToast(true);
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
-    }
-    finally {
+      setError("An error occurred. Please try again.");
+    } finally {
       setIsLoading(false); // Set loading to false after search completes or fails
     }
   };
 
-
   return (
     <IonPage>
-     
-        <Header />
- 
+      <Header />
+
       <IonContent>
         <IonGrid style={{ marginBottom: "20px" }}>
-          <div style={{ marginTop: '20px' }}>
+          <div style={{ marginTop: "20px" }}>
             <h5 class="text-center mb-5 element">Polish Parcel</h5>
           </div>
-          <div style={{ display: "flex", justifyContent: "start", alignContent: "center", gap: "15px",padding:"20px 7px"}}>
-             <a onClick={() => history.push('/home')}>
-              <button className="sumbutton sumbutton-11">Polish Certified</button>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "start",
+              alignContent: "center",
+              gap: "15px",
+              padding: "20px 7px",
+            }}
+          >
+            <a onClick={() => history.push("/home")}>
+              <button className="sumbutton sumbutton-11">
+                Polish Certified
+              </button>
             </a>
-            <a onClick={() => history.push('/polish')}>
-              <button type="button" class="sumbutton ">Polish Parcel</button>
+            <a onClick={() => history.push("/polish")}>
+              <button type="button" class="sumbutton ">
+                Polish Parcel
+              </button>
             </a>
-              <a href='/jewel'>
-              <button type="button" class="sumbutton sumbutton-11 ">Jewelry</button>
+            <a href="/jewel">
+              <button type="button" class="sumbutton sumbutton-11 ">
+                Jewelry
+              </button>
             </a>
           </div>
           <IonRow>
-             <IonCol size="12">
-                           <div className="main-box main2">
-                             <div className="checkbox-group">
-                               {categories.Shape.map((option) => (
-                                 <span
-                                   key={option.name}
-                                   className={`checkbox-label ${
-                                     selectedOptionss.SHAPES?.includes(
-                                       option.name.toUpperCase(),
-                                     )
-                                       ? "selected"
-                                       : ""
-                                   }`}
-                                   onClick={() =>
-                                     handleCheckboxChange(
-                                       "SHAPES",
-                                       option.name.toUpperCase(),
-                                     )
-                                   }
-                                 >
-                                   <img
-                                     src={option.image}
-                                     alt={option.name}
-                                     width={45}
-                                     height={45}
-                                     className="shape-icon"
-                                   />
-           
-                                   <small className="shape-title" style={{textTransform:'uppercase'}}>{option.name}</small>
-                                 </span>
-                               ))}
-           
-                               <div className="checkbox-group">
-                                 <span
-                                   className="checkbox-label"
-                                   onClick={handleOthersClick}
-                                 >
-                                   <img
-                                     src="/shapeimage/Others.svg"
-                                     alt="Others"
-                                     width={45}
-                                     height={45}
-                                     className="shape-icon"
-                                   />
-                                   <small className="shape-title" style={{textTransform:'uppercase'}}>Others</small>
-                                 </span>
-                               </div>
-                               {showVVS2 && (
-                                 <div className="checkbox-group">
-                                   {data?.SHAPE?.map((option) => (
-                                     <span
-                                       key={option.name}
-                                       className={`checkbox-label ${
-                                         selectedOptionss.SHAPES?.includes(
-                                           option.name.toUpperCase(),
-                                         )
-                                           ? "selected"
-                                           : ""
-                                       }`}
-                                       onClick={() =>
-                                         handleCheckboxChange(
-                                           "SHAPES",
-                                           option.name.toUpperCase(),
-                                         )
-                                       }
-                                     >
-                                       <img
-                                         src={`/shapeimage/${option.name}.svg`}
-                                         alt={option.name}
-                                         width={45}
-                                         height={45}
-                                         className="shape-icon"
-                                       />
-           
-                                       <small className="shape-title">{option.name}</small>
-                                     </span>
-                                   ))}
-                                 </div>
-                               )}
-                             </div>
-                           </div>
-                         </IonCol>
+            <IonCol size="12">
+              <div className="main-box main2">
+                <div className="checkbox-group">
+                  {categories.Shape.map((option) => (
+                    <span
+                      key={option.name}
+                      className={`checkbox-label ${
+                        selectedOptionss.SHAPES?.includes(
+                          option.name.toUpperCase(),
+                        )
+                          ? "selected"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        handleCheckboxChange(
+                          "SHAPES",
+                          option.name.toUpperCase(),
+                        )
+                      }
+                    >
+                      <img
+                        src={option.image}
+                        alt={option.name}
+                        width={45}
+                        height={45}
+                        className="shape-icon"
+                      />
+
+                      <small
+                        className="shape-title"
+                        style={{ textTransform: "uppercase" }}
+                      >
+                        {option.name}
+                      </small>
+                    </span>
+                  ))}
+
+                  <div className="checkbox-group">
+                    <span
+                      className="checkbox-label"
+                      onClick={handleOthersClick}
+                    >
+                      <img
+                        src="/shapeimage/Others.svg"
+                        alt="Others"
+                        width={45}
+                        height={45}
+                        className="shape-icon"
+                      />
+                      <small
+                        className="shape-title"
+                        style={{ textTransform: "uppercase" }}
+                      >
+                        Others
+                      </small>
+                    </span>
+                  </div>
+                  {showVVS2 && (
+                    <div className="checkbox-group">
+                      {data?.SHAPE?.map((option) => (
+                        <span
+                          key={option.name}
+                          className={`checkbox-label ${
+                            selectedOptionss.SHAPES?.includes(
+                              option.name.toUpperCase(),
+                            )
+                              ? "selected"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleCheckboxChange(
+                              "SHAPES",
+                              option.name.toUpperCase(),
+                            )
+                          }
+                        >
+                          <img
+                            src={`/shapeimage/${option.name}.svg`}
+                            alt={option.name}
+                            width={45}
+                            height={45}
+                            className="shape-icon"
+                          />
+
+                          <small className="shape-title">
+                            {option.name === "OLD MINE CUSHION"
+                              ? "OLD MINE CUS"
+                              : option.name === "OLD MINE LONG CUSHION"
+                                ? "OLD MINE L.CUS"
+                                : option.name === "ROSE CUT"
+                                  ? "ROSE CUT RO."
+                                  : option.name}
+                          </small>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </IonCol>
           </IonRow>
 
           <IonRow>
             <IonCol size="12">
               <div className="main-box">
-                <h5 style={{ textTransform: 'uppercase' }}>Carat</h5>
+                <h5 style={{ textTransform: "uppercase" }}>Carat</h5>
                 <IonRow>
                   <IonCol size="6" sizeMd="6">
                     <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
+                      style={{
+                        background: "#ffdeb300",
+                        color: "#000",
+                        width: "100%",
+                        marginBottom: "5px",
+                        borderRadius: "8px",
+                        border: "1px solid #4c3226",
+                      }}
                       type="number"
                       class="form-control"
                       name="CaratFrom"
                       placeholder="Carat From"
                       value={carat.from}
-                      onChange={(e) => setCarat({ ...carat, from: e.target.value })}
+                      onChange={(e) =>
+                        setCarat({ ...carat, from: e.target.value })
+                      }
                     />
                   </IonCol>
                   <IonCol size="6" sizeMd="6">
                     <input
-                      style={{ background: '#ffdeb300', color: '#000', width: '100%', marginBottom: '5px', borderRadius: '8px', border: '1px solid #4c3226' }}
+                      style={{
+                        background: "#ffdeb300",
+                        color: "#000",
+                        width: "100%",
+                        marginBottom: "5px",
+                        borderRadius: "8px",
+                        border: "1px solid #4c3226",
+                      }}
                       type="number"
                       class="form-control"
                       name="CaratTo"
                       placeholder="Carat To "
                       value={carat.to}
-                      onChange={(e) => setCarat({ ...carat, to: e.target.value })}
+                      onChange={(e) =>
+                        setCarat({ ...carat, to: e.target.value })
+                      }
                     />
                   </IonCol>
                 </IonRow>
@@ -504,13 +591,23 @@ const Polish = () => {
           <IonRow>
             <IonCol size="12">
               <div className="main-box">
-                <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Stone Id #/Cert #</h5>
+                <h5
+                  style={{ textTransform: "uppercase", marginBottom: "10px" }}
+                >
+                  Stone Id #/Cert #
+                </h5>
                 <textarea
-                  style={{ width: '100%', borderRadius: '8px', background: '#fff8ef' }}
+                  style={{
+                    width: "100%",
+                    borderRadius: "8px",
+                    background: "#fff8ef",
+                  }}
                   className="forminput"
                   placeholder="Enter Stone Id or Certificate Number"
                   value={stoneId}
-                  onChange={(e) => setStoneId(e.target.value.trim().toUpperCase())}
+                  onChange={(e) =>
+                    setStoneId(e.target.value.trim().toUpperCase())
+                  }
                 />
               </div>
             </IonCol>
@@ -520,12 +617,21 @@ const Polish = () => {
               <div className="main-box">
                 {["CARAT"].map((category) => (
                   <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>Carat Range</h5>
+                    <h5
+                      style={{
+                        textTransform: "uppercase",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Carat Range
+                    </h5>
                     <div className="checkbox-group">
                       {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
+                        <span
+                          key={option}
+                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? "selected" : ""}`}
+                          onClick={() => handleCheckboxChange(category, option)}
+                        >
                           {option}
                         </span>
                       ))}
@@ -540,12 +646,21 @@ const Polish = () => {
               <div className="main-box">
                 {["Color"].map((category) => (
                   <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
+                    <h5
+                      style={{
+                        textTransform: "uppercase",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {category}
+                    </h5>
                     <div className="checkbox-group">
                       {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
+                        <span
+                          key={option}
+                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? "selected" : ""}`}
+                          onClick={() => handleCheckboxChange(category, option)}
+                        >
                           {option}
                         </span>
                       ))}
@@ -558,12 +673,21 @@ const Polish = () => {
               <div className="main-box">
                 {["Clarity"].map((category) => (
                   <div className="mainbox" key={category}>
-                    <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
+                    <h5
+                      style={{
+                        textTransform: "uppercase",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {category}
+                    </h5>
                     <div className="checkbox-group">
                       {categories[category].map((option) => (
-                        <span key={option}
-                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? 'selected' : ''}`}
-                          onClick={() => handleCheckboxChange(category, option)}>
+                        <span
+                          key={option}
+                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? "selected" : ""}`}
+                          onClick={() => handleCheckboxChange(category, option)}
+                        >
                           {option}
                         </span>
                       ))}
@@ -572,26 +696,35 @@ const Polish = () => {
                 ))}
               </div>
             </IonCol>
-         
-              <IonCol size="12">
-                <div className="main-box">
-                  {["location"]?.map((category) => (
-                    <div className="mainbox" key={category}>
-                      <h5 style={{ textTransform: 'uppercase', marginBottom: '10px' }}>{category}</h5>
-                      <div className="checkbox-group">
-                        {categories[category]?.map((option) => (
-                          <span key={option}
-                            className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? 'selected' : ''}`}
-                            onClick={() => handleCheckboxChange(category, option)}>
-                            {option}
-                          </span>
-                        ))}
-                      </div>
+
+            <IonCol size="12">
+              <div className="main-box">
+                {["location"]?.map((category) => (
+                  <div className="mainbox" key={category}>
+                    <h5
+                      style={{
+                        textTransform: "uppercase",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {category}
+                    </h5>
+                    <div className="checkbox-group">
+                      {categories[category]?.map((option) => (
+                        <span
+                          key={option}
+                          className={`checkbox-label ${selectedOptionss[category]?.includes(option) ? "selected" : ""}`}
+                          onClick={() => handleCheckboxChange(category, option)}
+                        >
+                          {option}
+                        </span>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </IonCol>
-           
+                  </div>
+                ))}
+              </div>
+            </IonCol>
+
             {/* <IonCol size="12">
               <div className="main-box">
                 {["Cut"].map((category) => (
@@ -729,14 +862,25 @@ const Polish = () => {
             </IonCol> */}
           </IonRow>
 
-         
           {/* Buttons */}
           <IonRow>
-            <IonCol size="12" className="ion-text-center" style={{marginTop:'10px'}}>
+            <IonCol
+              size="12"
+              className="ion-text-center"
+              style={{ marginTop: "10px" }}
+            >
               <div className="mainbtn">
-                <button className="sumbutton" onClick={handlesearch} disabled={isLoading} >Search</button>
-           
-                <button className="sumbutton" onClick={openModal}>Post Your Demand</button>
+                <button
+                  className="sumbutton"
+                  onClick={handlesearch}
+                  disabled={isLoading}
+                >
+                  Search
+                </button>
+
+                <button className="sumbutton" onClick={openModal}>
+                  Post Your Demand
+                </button>
               </div>
             </IonCol>
           </IonRow>
@@ -759,17 +903,41 @@ const Polish = () => {
         {showModal && (
           <div className="modalimage1">
             <div className="modalimage2">
-              <div type='button' onClick={closeModal} style={{ position: "absolute", right: "20px", top: "20px", zIndex: "999" }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="bi bi-x-lg" viewBox="0 0 16 16">
+              <div
+                type="button"
+                onClick={closeModal}
+                style={{
+                  position: "absolute",
+                  right: "20px",
+                  top: "20px",
+                  zIndex: "999",
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  class="bi bi-x-lg"
+                  viewBox="0 0 16 16"
+                >
                   <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" />
                 </svg>
               </div>
-              <h2 >Post Your Demand</h2>
-              <div >
+              <h2>Post Your Demand</h2>
+              <div>
                 <label>
                   Remark
                   <input
-                    style={{ background: '#ffdeb300', padding: '10px', color: '#000', width: '100%', marginBottom: '15px', borderRadius: '8px', border: '1px solid #4c3226', marginTop: '15px' }}
+                    style={{
+                      background: "#ffdeb300",
+                      padding: "10px",
+                      color: "#000",
+                      width: "100%",
+                      marginBottom: "15px",
+                      borderRadius: "8px",
+                      border: "1px solid #4c3226",
+                      marginTop: "15px",
+                    }}
                     type="text"
                     placeholder="ADD Remark"
                     className="input-box"
@@ -779,7 +947,9 @@ const Polish = () => {
                 </label>
               </div>
               <div className="modal-footer">
-                <button onClick={handleSubmit} className="submit-btn">Submit</button>
+                <button onClick={handleSubmit} className="submit-btn">
+                  Submit
+                </button>
               </div>
             </div>
           </div>

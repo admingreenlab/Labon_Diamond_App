@@ -514,7 +514,15 @@ const Home = () => {
                               className="shape-icon"
                             />
 
-                            <small className="shape-title">{option.name}</small>
+                            <small className="shape-title">
+                              {option.name === "OLD MINE CUSHION"
+                                ? "OLD MINE CUS"
+                                : option.name === "OLD MINE LONG CUSHION"
+                                  ? "OLD MINE L.CUS"
+                                  : option.name === "ROSE CUT"
+                                    ? "ROSE CUT RO."
+                                    : option.name}
+                            </small>
                           </span>
                         ))}
                       </div>
