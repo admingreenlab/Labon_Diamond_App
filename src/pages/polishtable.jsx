@@ -338,21 +338,20 @@ function Polishtable() {
     const totalLotCount = exportData.length;
 
     const headers = [
-      "Type",
       "Location",
       "In Stock",
       "LOT NO",
-      "Carats",
-      "Clarity",
-      "CO ID",
-      "Color",
-      "Height",
-      "Length",
-      "Main_LOT",
       "Shape",
-      "MM Size",
+      "Carats",
+      "Color",
+      "Clarity",
+      "Length",
       "Width",
+      "Height",
+      "Main_LOT",
+      "MM Size",
       "ASK AMT",
+      "Type",
     ];
 
     const totalRow = new Array(headers.length).fill("");
@@ -376,21 +375,20 @@ function Polishtable() {
     const headerRow = headers;
 
     const dataRows = exportData.map((item) => [
-      item.FL_TYPE,
       item.FL_BRID,
       "A",
       item.FL_SUB_LOT,
-      item.FL_CARATS,
-      item.FL_CLARITY,
-      item.FL_COID,
-      item.FL_COLOR,
-      item.FL_HIGHT,
-      item.FL_LENGTH,
-      item.FL_MAIN_LOT,
       item.FL_SHAPE_NAME,
-      item.FL_SIZE,
+      item.FL_CARATS,
+      item.FL_COLOR,
+      item.FL_CLARITY,
+      item.FL_LENGTH,
       item.FL_WIDTH,
+      item.FL_HIGHT,
+      item.FL_MAIN_LOT,
+      item.FL_SIZE,
       item.FL_ASK_AMT,
+      item.FL_TYPE,
     ]);
 
     // Add a title row above the header, merged across columns A to G (0-6)
@@ -831,21 +829,19 @@ function Polishtable() {
                               </label>
                             </th>
                             {/* <th>SrNo</th> */}
-                            <th>Type</th>
+
                             <th>Location</th>
                             <th>In Stock</th>
                             <th>LOT NO</th>
-                            <th>Carats</th>
-                            <th>Clarity</th>
-                            <th>CO ID</th>
-                            <th>Color</th>
-                            <th>Height</th>
-                            <th>Length</th>
-                            <th>Main_LOT</th>
                             <th>Shape</th>
-                            <th>MM Size</th>
+                            <th>Carats</th>
+                            <th>Color</th>
+                            <th>Clarity</th>
+                            <th>Length</th>
                             <th>Width</th>
+                            <th>Height</th>
                             <th>ASK AMT</th>
+                            <th>Type</th>
                           </tr>
                         </thead>
                         <tbody className="tablecss">
@@ -870,22 +866,18 @@ function Polishtable() {
                                     <div className="checkbox__checkmark"></div>
                                   </label>
                                 </td>
-
-                                <td>{item.FL_TYPE}</td>
                                 <td>{item.FL_BRID}</td>
                                 <td>A</td>
                                 <td>{item.FL_SUB_LOT}</td>
-                                <td>{item.FL_CARATS}</td>
-                                <td>{item.FL_CLARITY}</td>
-                                <td>{item.FL_COID}</td>
-                                <td>{item.FL_COLOR}</td>
-                                <td>{item.FL_HIGHT}</td>
-                                <td>{item.FL_LENGTH}</td>
-                                <td>{item.FL_MAIN_LOT}</td>
                                 <td>{item.FL_SHAPE_NAME}</td>
-                                <td>{item.FL_SIZE}</td>
+                                <td>{item.FL_CARATS}</td>
+                                <td>{item.FL_COLOR}</td>
+                                <td>{item.FL_CLARITY}</td>
+                                <td>{item.FL_LENGTH}</td>
                                 <td>{item.FL_WIDTH}</td>
+                                <td>{item.FL_HIGHT}</td>
                                 <td>{item.FL_ASK_AMT}</td>
+                                <td>{item.FL_TYPE}</td>
                               </tr>
                             ))
                           ) : (

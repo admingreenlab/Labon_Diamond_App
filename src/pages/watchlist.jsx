@@ -509,7 +509,7 @@ function Watchlist() {
             >
               PARCEL
             </button>
-            <button
+            {/* <button
               className={
                 tabselect.jewel ? "sumbutton" : "sumbutton sumbutton-11"
               }
@@ -525,7 +525,7 @@ function Watchlist() {
               }}
             >
               JEWEL
-            </button>
+            </button> */}
           </div>
           <div className="myquotations" style={{ marginBottom: "90px" }}>
             <IonGrid>
@@ -1015,16 +1015,13 @@ function Watchlist() {
                                 <th>Location</th>
                                 <th>In Stock</th>
                                 <th>LOT NO</th>
-                                <th>Carats</th>
-                                <th>Clarity</th>
-                                <th>CO ID</th>
-                                <th>Color</th>
-                                <th>Height</th>
-                                <th>Length</th>
-                                <th>Main_LOT</th>
                                 <th>Shape</th>
-                                <th>MM Size</th>
+                                <th>Carats</th>
+                                <th>Color</th>
+                                <th>Clarity</th>
+                                <th>Length</th>
                                 <th>Width</th>
+                                <th>Height</th>
                                 <th>ASK AMT</th>
                               </tr>
                             </thead>
@@ -1045,20 +1042,17 @@ function Watchlist() {
                                       <div className="checkbox__checkmark"></div>
                                     </label>
                                   </td>
-                                  <td>{item.FL_TYPE}</td>
+                                  <td>{item.FL_INVENTORY_TYPE}</td>
                                   <td>{item.FL_BRID}</td>
                                   <td>A</td>
                                   <td>{item.FL_SUB_LOT}</td>
+                                  <td>{item.FL_SHAPE}</td>
                                   <td>{item.FL_CARATS}</td>
-                                  <td>{item.FL_CLARITY}</td>
-                                  <td>{item.FL_COID}</td>
                                   <td>{item.FL_COLOR}</td>
-                                  <td>{item.FL_HIGHT}</td>
+                                  <td>{item.FL_CLARITY}</td>
                                   <td>{item.FL_LENGTH}</td>
-                                  <td>{item.FL_MAIN_LOT}</td>
-                                  <td>{item.FL_SHAPE_NAME}</td>
-                                  <td>{item.FL_SIZE}</td>
                                   <td>{item.FL_WIDTH}</td>
+                                  <td>{item.FL_HIGHT}</td>
                                   <td>{item.FL_ASK_AMT}</td>
                                 </tr>
                               ))}

@@ -60,9 +60,7 @@ const Jewel = () => {
       },
       {
         name: "OVAL BANGLE",
-        shapeicon: (
-          <img src="/jewelsvg/OVAL BANGLE.svg" alt="OVAL BANGLE" />
-        ),
+        shapeicon: <img src="/jewelsvg/OVAL BANGLE.svg" alt="OVAL BANGLE" />,
       },
       {
         name: "OTHER",
@@ -251,8 +249,16 @@ const Jewel = () => {
                 Polish Parcel
               </button>
             </a>
-            <a href="/jewel">
-              <button type="button" class="sumbutton ">
+            <a
+              onClick={() =>
+                window.open(
+                  "https://www.labonjewels.com/",
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
+              <button type="button" class="sumbutton">
                 Jewelry
               </button>
             </a>
