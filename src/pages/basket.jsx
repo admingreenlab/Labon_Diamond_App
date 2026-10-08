@@ -26,6 +26,10 @@ import {
   IonButtons,
   IonToast,
   IonLoading,
+  IonSegment,
+  IonSegmentButton,
+  IonCard,
+  IonCardContent,
 } from "@ionic/react";
 import { IonCol, IonGrid, IonRow, IonTabButton } from "@ionic/react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -56,6 +60,7 @@ import { Capacitor } from "@capacitor/core";
 import { Share } from "@capacitor/share";
 import XLSX from "xlsx-js-style";
 import { BasketContext } from "../context/BasketContext";
+import { chevronDown, chevronUp } from "ionicons/icons";
 
 function Basket() {
   const [selectedRows, setSelectedRows] = useState([]);
@@ -73,6 +78,12 @@ function Basket() {
   const { setSearchState, fetchDatas } = useContext(BasketContext);
   const [showLoading, setShowLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showShippingText, setShowShippingText] = useState(false);
+  const [shippingText, setShippingText] = useState("");
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [shippingMethod, setShippingMethod] = useState("");
+  const [shippingAmount, setShippingAmount] = useState(0);
+  const [orderType, setOrderType] = useState("");
 
   const [tabselect, settabselect] = useState({
     single: true,
@@ -82,6 +93,162 @@ function Basket() {
   // useEffect(() => {
   //     console.log('selectedRows', selectedRows)
   // }, [selectedRows])
+
+  const handleShippingChange = (e) => {
+    const value = e.target.value;
+
+    setShippingMethod(value);
+
+    switch (value) {
+      case "overnight":
+        setShippingAmount(45);
+        break;
+
+      case "2ndday":
+        setShippingAmount(30);
+        break;
+
+      case "saturday":
+        setShippingAmount(80);
+        break;
+
+      default:
+        setShippingAmount(0);
+    }
+  };
+
+  const handleOrderNow = async () => {
+    if (selectedRows.length === 0) {
+      alert("Please select at least one item");
+      return;
+    }
+
+    if (!shippingMethod) {
+      alert("Please select shipping method");
+      return;
+    }
+
+    if (!orderType) {
+      alert("Please select Memo or Purchase");
+      return;
+    }
+
+    const trtype = orderType === "memo" ? "33" : "35";
+
+    // ORDER TYPE
+    let orderApiType = "";
+
+    if (tabselect.single) {
+      orderApiType = "POLISH-SINGLE";
+    } else if (tabselect.parcel) {
+      orderApiType = "POLISH-PARCEL";
+    } else {
+      alert("Invalid order type");
+      return;
+    }
+
+    // STONE DETAILS
+    let StoneDetails = [];
+
+    // SINGLE
+    if (tabselect.single) {
+      StoneDetails = selectedRows.map((row) => {
+        const carats = Number(row.CARATS || 0);
+        const rapPrice = Number(row.RAP_PRICE || 0);
+        const discount = Number(row.ASK_DISC || 0);
+
+        const pricePerCts = (rapPrice * (100 - discount)) / 100;
+
+        const amount = pricePerCts * carats;
+
+        return {
+          STONE: row.STONE || "",
+          LAB: row.LAB || "",
+          REPORTNO: row.REPORTNO || "",
+          SHAPE: row.SHAPE || "",
+          CARATS: carats,
+          COLOR: row.COLOR || "",
+          CLARITY: row.CLARITY || "",
+          PRICE_PER_CTS: Number(pricePerCts.toFixed(2)),
+          AMOUNT: Number(amount.toFixed(2)),
+        };
+      });
+    }
+
+    // PARCEL
+    else if (tabselect.parcel) {
+      StoneDetails = selectedRows.map((row) => {
+        const carats = Number(row.FL_CARATS || 0);
+        const amount = Number(row.FL_ASK_AMT || 0);
+
+        const pricePerCts = carats > 0 ? amount / carats : 0;
+
+        return {
+          STONE: row.STONE || "",
+          LAB: row.LAB || "",
+          REPORTNO: row.REPORTNO || "",
+          SHAPE: row.FL_SHAPE_GROUP || "",
+          CARATS: carats,
+          COLOR: row.FL_COLOR || "",
+          CLARITY: row.FL_CLARITY || "",
+          PRICE_PER_CTS: Number(pricePerCts.toFixed(2)),
+          AMOUNT: Number(amount.toFixed(2)),
+        };
+      });
+    }
+
+    // PAYLOAD
+    const payload = {
+      shippingOption: shippingMethod,
+      trtype,
+      type: orderApiType,
+      comments: shippingText || "",
+      StoneDetails,
+    };
+
+    try {
+      setOrderLoading(true);
+
+      const response = await Axios.post("/user/order", payload);
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Order placed successfully");
+
+        // Basket update event
+        const eventBus = getEventBus();
+        eventBus.emit("basketUpdated");
+
+        // Clear selected rows
+        setSelectedRows([]);
+
+        // Clear shipping/comment/order selection
+        setShippingMethod("");
+        setShippingAmount(0);
+        setShippingText("");
+        setShowShippingText(false);
+        setOrderType("");
+
+        // Refresh current basket
+        if (tabselect.single) {
+          fetchData("single");
+        } else if (tabselect.parcel) {
+          fetchData("parcel");
+        }
+      }
+    } catch (error) {
+      console.error("Order API Error:", error);
+
+      alert(
+        error?.response?.data?.message ||
+          "Something went wrong while placing order",
+      );
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  const totalOrderAmount =
+    Number(selectedtotals?.amount || 0) + Number(shippingAmount || 0);
 
   const handleRowSelect = (item) => {
     // SINGLE
@@ -557,37 +724,85 @@ function Basket() {
   }, []);
 
   useEffect(() => {
-    let newSelectedTotals = {
-      pcs: selectedRows.length,
-      CARATS: selectedRows?.reduce((sum, row) => sum + row.CARATS, 0),
-      RAP: selectedRows?.reduce((sum, row) => sum + row.RAP_PRICE, 0),
-      ASK_DISC: selectedRows?.reduce(
-        (sum, row) => sum + row.ASK_DISC / selectedRows.length,
+    if (selectedRows.length === 0) {
+      setSelectedTotals({
+        pcs: 0,
+        CARATS: 0,
+        RAP: 0,
+        ASK_DISC: 0,
+        pricects: 0,
+        amount: 0,
+      });
+      return;
+    }
+
+    // =========================
+    // PARCEL
+    // =========================
+    if (tabselect.parcel) {
+      const totalCarats = selectedRows.reduce(
+        (sum, row) => sum + Number(row.FL_CARATS || 0),
         0,
-      ),
-      // pricects: selectedRows?.reduce((sum, row) => sum + (row.RAP_PRICE * (100 - Number(row.ASK_DISC)) / 100), 0),
-      pricects:
-        selectedRows?.length > 0
-          ? selectedRows?.reduce(
-              (sum, row) =>
-                sum +
-                ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) *
-                  row.CARATS,
-              0,
-            ) / selectedRows?.reduce((sum, row) => sum + row.CARATS, 0)
-          : 0,
-      amount: selectedRows?.reduce(
+      );
+
+      const totalAmount = selectedRows.reduce(
+        (sum, row) => sum + Number(row.FL_ASK_AMT || 0),
+        0,
+      );
+
+      setSelectedTotals({
+        pcs: selectedRows.length,
+        CARATS: totalCarats,
+        RAP: 0,
+        ASK_DISC: 0,
+        pricects: totalCarats > 0 ? totalAmount / totalCarats : 0,
+        amount: totalAmount,
+      });
+
+      return;
+    }
+
+    // =========================
+    // SINGLE
+    // =========================
+    if (tabselect.single) {
+      const totalCarats = selectedRows.reduce(
+        (sum, row) => sum + Number(row.CARATS || 0),
+        0,
+      );
+
+      const totalRap = selectedRows.reduce(
+        (sum, row) => sum + Number(row.RAP_PRICE || 0),
+        0,
+      );
+
+      const totalDiscount = selectedRows.reduce(
+        (sum, row) => sum + Number(row.ASK_DISC || 0),
+        0,
+      );
+
+      const totalAmount = selectedRows.reduce(
         (sum, row) =>
           sum +
-          ((row.RAP_PRICE * (100 - Number(row.ASK_DISC))) / 100) * row.CARATS,
+          ((Number(row.RAP_PRICE || 0) * (100 - Number(row.ASK_DISC || 0))) /
+            100) *
+            Number(row.CARATS || 0),
         0,
-      ),
-    };
+      );
 
-    setSelectedTotals(newSelectedTotals);
+      setSelectedTotals({
+        pcs: selectedRows.length,
+        CARATS: totalCarats,
+        RAP: totalRap,
+        ASK_DISC:
+          selectedRows.length > 0 ? totalDiscount / selectedRows.length : 0,
+        pricects: totalCarats > 0 ? totalAmount / totalCarats : 0,
+        amount: totalAmount,
+      });
 
-    console.log(selectedtotals);
-  }, [selectedRows]);
+      return;
+    }
+  }, [selectedRows, tabselect]);
 
   const totals = {
     CARATS: data?.reduce((sum, row) => sum + row.CARATS, 0),
@@ -848,13 +1063,6 @@ function Basket() {
                         Cts = <span>{selectedtotals?.CARATS?.toFixed(2)}</span>
                       </li>
                       <li>
-                        Rap = <span>{selectedtotals?.RAP?.toFixed(2)}</span>
-                      </li>
-                      <li>
-                        Disc% ={" "}
-                        <span>{selectedtotals?.ASK_DISC?.toFixed(2)}</span>
-                      </li>
-                      <li>
                         Price ={" "}
                         <span>{selectedtotals?.pricects?.toFixed(2)}</span>
                       </li>
@@ -914,7 +1122,6 @@ function Basket() {
                                     <div class="checkbox__checkmark"></div>
                                   </label>
                                 </th>
-                                <th>Status</th>
                                 <th>Location</th>
                                 <th>StoneId</th>
                                 <th onClick={() => handleSort("LAB")}>
@@ -986,10 +1193,6 @@ function Basket() {
                                 <th>Measurements</th>
                                 <th>Table %</th>
                                 <th>Depth %</th>
-                                <th>Ratio</th>
-                                <th>H&A</th>
-                                <th>RapPrice</th>
-                                <th>Discount %</th>
                                 <th>Price/Cts</th>
                                 <th onClick={() => handleSort("AMOUNT")}>
                                   Amount
@@ -999,9 +1202,6 @@ function Basket() {
                                       : " ▼"
                                     : "▼"}
                                 </th>
-                                <th>View Offer</th>
-                                <th>Certificate</th>
-                                <th>VideoLink</th>
                               </tr>
                             </thead>
                             <tbody className="tablecss">
@@ -1025,8 +1225,6 @@ function Basket() {
                                       <div className="checkbox__checkmark"></div>
                                     </label>
                                   </td>
-                                  {/* <td>{item.srNo}</td> */}
-                                  <td>{item.STATUS}</td>
                                   <td>{item.FL_BRID}</td>
                                   <td>{item.STONE}</td>
                                   <td>
@@ -1049,10 +1247,6 @@ function Basket() {
                                   <td>{item.FL_MEASUREMENTS}</td>
                                   <td>{item.FL_TABLE_PER?.toFixed(2)}</td>
                                   <td>{item.FL_DEPTH_PER?.toFixed(2)}</td>
-                                  <td>{item.FL_RATIO || "-"}</td>
-                                  <td>{item.ha}</td>
-                                  <td>{item.RAP_PRICE?.toFixed(2)}</td>
-                                  <td>{item.ASK_DISC}</td>
                                   <td>
                                     {(
                                       (item.RAP_PRICE *
@@ -1068,41 +1262,8 @@ function Basket() {
                                       item.CARATS
                                     )?.toFixed(2)}
                                   </td>
-                                  <td>{item.viewoffer}</td>
-                                  <td>
-                                    <a
-                                      href={`https://www.igi.org/reports/verify-your-report?r=${item.REPORTNO}`}
-                                      target="_blank"
-                                      style={{ color: "blue" }}
-                                    >
-                                      PDF
-                                    </a>
-                                  </td>
-                                  <td>
-                                    <a
-                                      href={`https://www.dnav360.com/vision/dna.html?d=${item.STONE}&ic=1`}
-                                      target="_blank"
-                                      style={{ color: "blue" }}
-                                    >
-                                      VIDEO
-                                    </a>
-                                  </td>
                                 </tr>
                               ))}
-
-                              <tr className="tablecss">
-                                <th></th>
-                                <th colSpan={6}>Total</th>
-                                <th>{totals.CARATS?.toFixed(2)}</th>
-                                <th colSpan={10}></th>
-                                <th></th>
-                                <th>{count[0]?.AVG?.toFixed(2)}</th>
-                                <th>{totals.pricects?.toFixed(2)}</th>
-                                <th>{totals.amount?.toFixed(2)}</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                              </tr>
                             </tbody>
                           </table>
                         </div>
@@ -1333,6 +1494,106 @@ function Basket() {
                     </>
                   )}
                 </IonCol>
+                {tabselect.single && (
+                  <section className="checkout-section">
+                    <div className="shipping-card">
+                      <h5 className="shipping-title">Shipping Options</h5>
+
+                      <select
+                        className="shipping-select"
+                        value={shippingMethod}
+                        onChange={handleShippingChange}
+                      >
+                        <option value="">Select Shipping Method</option>
+
+                        <option value="overnight">1. Overnight - ($45)</option>
+
+                        <option value="2ndday">2. 2nd Day - ($30)</option>
+
+                        <option value="saturday">3. Saturday - ($80)</option>
+                      </select>
+                    </div>
+
+                    <div className="order-summary-box">
+                      <div className="summary-row">
+                        <span>
+                          Total Order ({selectedtotals?.pcs || 0} pcs /{" "}
+                          {Number(selectedtotals?.CARATS || 0).toFixed(2)} cts)
+                        </span>
+
+                        <strong>
+                          ${Number(selectedtotals?.amount || 0).toFixed(2)}
+                        </strong>
+                      </div>
+
+                      <div className="shipping-summary-wrapper">
+                        <div
+                          className="summary-row shipping-summary"
+                          onClick={() => setShowShippingText((prev) => !prev)}
+                        >
+                          <span className="shipping-label">
+                            Shipping
+                            <span className="shipping-arrow">
+                              {showShippingText ? "▲" : "▼"}
+                            </span>
+                          </span>
+
+                          <strong>
+                            ${Number(shippingAmount || 0).toFixed(2)}
+                          </strong>
+                        </div>
+                        {showShippingText && (
+                          <div className="shipping-comment">
+                            <textarea
+                              value={shippingText}
+                              onChange={(e) => setShippingText(e.target.value)}
+                              placeholder="Write your comments here..."
+                              rows={2}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="summary-divider" />
+                      <div className="summary-row final-total">
+                        <span>Total Order</span>
+
+                        <strong>${totalOrderAmount.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                    <div className="order-type-buttons">
+                      <button
+                        type="button"
+                        className={
+                          orderType === "memo"
+                            ? "order-type-btn active"
+                            : "order-type-btn"
+                        }
+                        onClick={() => setOrderType("memo")}
+                      >
+                        Memo
+                      </button>
+                      <button
+                        type="button"
+                        className={
+                          orderType === "purchase"
+                            ? "order-type-btn active"
+                            : "order-type-btn"
+                        }
+                        onClick={() => setOrderType("purchase")}
+                      >
+                        Purchase
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="order-now-btn"
+                      onClick={handleOrderNow}
+                      disabled={orderLoading}
+                    >
+                      {orderLoading ? "Processing..." : "Order Now"}
+                    </button>
+                  </section>
+                )}
               </IonRow>
             </IonGrid>
             <IonLoading
