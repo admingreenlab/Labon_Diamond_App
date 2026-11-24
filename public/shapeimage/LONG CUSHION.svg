@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" width="320" height="360">
+  <rect width="100%" height="100%" fill="none" />
+  <g stroke="#8C9397" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    
+    <!-- Outer Cushion Outline -->
+    <path stroke="#8C9397" d="M 160,26 
+             C 225,26 265,42 280,105 
+             C 288,140 288,220 280,255 
+             C 265,318 225,334 160,334 
+             C 95,334 55,318 40,255 
+             C 32,220 32,140 40,105 
+             C 55,42 95,26 160,26 Z" />
+
+    <!-- Central Axes -->
+    <!-- Vertical Center Line -->
+    <line x1="160" y1="26" x2="160" y2="175" />
+    <line x1="160" y1="185" x2="160" y2="334" />
+
+    <!-- Horizontal Center Line -->
+    <line x1="34" y1="180" x2="155" y2="180" />
+    <line x1="165" y1="180" x2="286" y2="180" />
+
+    <!-- Top Vertex (160, 128) Radiating Lines -->
+    <line x1="160" y1="128" x2="103" y2="33" />
+    <line x1="160" y1="128" x2="58" y2="62" />
+    <line x1="160" y1="128" x2="217" y2="33" />
+    <line x1="160" y1="128" x2="262" y2="62" />
+
+    <!-- Bottom Vertex (160, 232) Radiating Lines -->
+    <line x1="160" y1="232" x2="103" y2="327" />
+    <line x1="160" y1="232" x2="58" y2="298" />
+    <line x1="160" y1="232" x2="217" y2="327" />
+    <line x1="160" y1="232" x2="262" y2="298" />
+
+    <!-- Left Vertex (116, 180) Radiating Lines -->
+    <line x1="116" y1="180" x2="58" y2="62" />
+    <line x1="116" y1="180" x2="38" y2="122" />
+    <line x1="116" y1="180" x2="38" y2="238" />
+    <line x1="116" y1="180" x2="58" y2="298" />
+
+    <!-- Right Vertex (204, 180) Radiating Lines -->
+    <line x1="204" y1="180" x2="262" y2="62" />
+    <line x1="204" y1="180" x2="282" y2="122" />
+    <line x1="204" y1="180" x2="282" y2="238" />
+    <line x1="204" y1="180" x2="262" y2="298" />
+
+    <!-- Center Culet Circle -->
+    <circle cx="160" cy="180" r="5" fill="none" />
+    
+  </g>
+</svg>
